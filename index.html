@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ECJ Access Toolbox</title>
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-bg: #0f1117;
+      --color-surface: #1a1d27;
+      --color-surface2: #22263a;
+      --color-border: #2e3250;
+      --color-accent: #5b8dee;
+      --color-accent-hover: #7aaaf5;
+      --color-accent-active: #3d6fd4;
+      --color-success: #3ecf8e;
+      --color-danger: #f87171;
+      --color-warning: #fbbf24;
+      --color-text: #e4e8f7;
+      --color-text-muted: #8892b0;
+      --color-text-subtle: #5a6485;
+      --radius: 8px;
+      --radius-lg: 12px;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--color-bg);
+      color: var(--color-text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ===== SKIP LINK ===== */
+    .skip-link {
+      position: absolute;
+      top: -100%;
+      left: 1rem;
+      background: var(--color-accent);
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      z-index: 9999;
+      text-decoration: none;
+      transition: top 0.2s;
+    }
+    .skip-link:focus { top: 1rem; }
+
+    /* ===== HEADER ===== */
+    header {
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .logo {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--color-accent);
+      letter-spacing: -0.5px;
+    }
+    .logo span { color: var(--color-text-muted); font-weight: 400; font-size: 1rem; }
+    .badge {
+      background: var(--color-accent);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: 99px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ===== LAYOUT ===== */
+    .app-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: calc(100vh - 65px);
+    }
+
+    /* ===== SIDEBAR ===== */
+    aside {
+      background: var(--color-surface);
+      border-right: 1px solid var(--color-border);
+      padding: 1.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .sidebar-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--color-text-subtle);
+      padding: 0.5rem 0.75rem;
+      margin-top: 0.5rem;
+    }
+    .sidebar-label:first-child { margin-top: 0; }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      background: transparent;
+      border: none;
+      border-radius: var(--radius);
+      color: var(--color-text-muted);
+      font-size: 0.9rem;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s, color 0.15s;
+      position: relative;
+    }
+    .nav-btn:hover { background: var(--color-surface2); color: var(--color-text); }
+    .nav-btn.active {
+      background: rgba(91,141,238,0.15);
+      color: var(--color-accent);
+      font-weight: 600;
+    }
+    .nav-btn:focus-visible {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+    .nav-icon { font-size: 1rem; width: 20px; text-align: center; }
+    .nav-tag {
+      margin-left: auto;
+      font-size: 0.6rem;
+      background: var(--color-surface2);
+      border: 1px solid var(--color-border);
+      padding: 0.1rem 0.4rem;
+      border-radius: 99px;
+      color: var(--color-text-subtle);
+    }
+    .nav-tag.hot { background: rgba(248,113,113,0.15); border-color: var(--color-danger); color: var(--color-danger); }
+
+    /* ===== MAIN CONTENT ===== */
+    main {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+    }
+    .panel.active { display: flex; }
+
+    .panel-header {
+      padding: 1.5rem 2rem 1rem;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .panel-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 0.25rem;
+    }
+    .panel-desc { font-size: 0.85rem; color: var(--color-text-muted); }
+
+    .panel-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ===== CONFIG PANE ===== */
+    .config-pane {
+      padding: 1.5rem;
+      border-right: 1px solid var(--color-border);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .field-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .field-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .field-input, .field-select {
+      background: var(--color-surface2);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      color: var(--color-text);
+      font-family: var(--font);
+      font-size: 0.9rem;
+      padding: 0.5rem 0.75rem;
+      width: 100%;
+      transition: border-color 0.15s;
+    }
+    .field-input:focus, .field-select:focus {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 0;
+      border-color: var(--color-accent);
+    }
+    .field-hint { font-size: 0.75rem; color: var(--color-text-subtle); }
+
+    .checkbox-group { display: flex; flex-direction: column; gap: 0.5rem; }
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      color: var(--color-text-muted);
+    }
+    .checkbox-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--color-accent);
+      cursor: pointer;
+    }
+    .checkbox-item:hover { color: var(--color-text); }
+
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--color-border);
+      margin: 0.25rem 0;
+    }
+
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--color-text-subtle);
+    }
+
+    /* ===== PREVIEW + CODE PANE ===== */
+    .output-pane {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .tabs-bar {
+      display: flex;
+      border-bottom: 1px solid var(--color-border);
+      background: var(--color-surface);
+      padding: 0 1rem;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--color-text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn:hover { color: var(--color-text); }
+    .tab-btn.active { color: var(--color-accent); border-bottom-color: var(--color-accent); }
+    .tab-btn:focus-visible { outline: 2px solid var(--color-accent); outline-offset: -2px; }
+
+    .tab-content { display: none; flex: 1; overflow: auto; }
+    .tab-content.active { display: flex; flex-direction: column; }
+
+    /* Preview area */
+    .preview-area {
+      flex: 1;
+      padding: 2rem;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      overflow-y: auto;
+      background: #fff;
+    }
+    .preview-inner { width: 100%; max-width: 480px; }
+
+    /* Code area */
+    .code-area {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+    .code-block {
+      width: 100%;
+      height: 100%;
+      background: var(--color-bg);
+      color: #a9b1d6;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      line-height: 1.6;
+      padding: 1.25rem;
+      border: none;
+      resize: none;
+      overflow: auto;
+      tab-size: 2;
+    }
+    .code-block:focus { outline: 2px solid var(--color-accent); outline-offset: -2px; }
+
+    .copy-btn {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background: var(--color-surface2);
+      border: 1px solid var(--color-border);
+      color: var(--color-text-muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.3rem 0.75rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .copy-btn:hover { background: var(--color-surface); color: var(--color-text); }
+    .copy-btn:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+    .copy-btn.copied { color: var(--color-success); border-color: var(--color-success); }
+
+    /* ===== GENERATE BUTTON ===== */
+    .generate-bar {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--color-border);
+      background: var(--color-surface);
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .btn-generate {
+      background: var(--color-accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      font-weight: 700;
+      padding: 0.65rem 1.5rem;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-generate:hover { background: var(--color-accent-hover); }
+    .btn-generate:active { background: var(--color-accent-active); transform: scale(0.98); }
+    .btn-generate:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+    .btn-download {
+      background: transparent;
+      color: var(--color-accent);
+      border: 1px solid var(--color-accent);
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      font-weight: 700;
+      padding: 0.65rem 1.5rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-download:hover { background: rgba(91,141,238,0.1); }
+    .btn-download:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+
+    .generate-hint { font-size: 0.75rem; color: var(--color-text-subtle); margin-left: auto; }
+
+    /* ===== WELCOME PANEL ===== */
+    .welcome-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 1rem;
+      padding: 3rem;
+      text-align: center;
+    }
+    .welcome-icon { font-size: 3rem; }
+    .welcome-title { font-size: 1.5rem; font-weight: 700; }
+    .welcome-text { color: var(--color-text-muted); max-width: 420px; line-height: 1.7; }
+    .welcome-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+      width: 100%;
+      max-width: 600px;
+    }
+    .welcome-card {
+      background: var(--color-surface2);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 1rem;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      text-align: left;
+    }
+    .welcome-card:hover { border-color: var(--color-accent); background: rgba(91,141,238,0.05); }
+    .welcome-card:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+    .wc-icon { font-size: 1.5rem; margin-bottom: 0.4rem; }
+    .wc-name { font-size: 0.85rem; font-weight: 700; color: var(--color-text); }
+    .wc-desc { font-size: 0.75rem; color: var(--color-text-muted); margin-top: 0.2rem; }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: var(--color-surface);
+      border-top: 1px solid var(--color-border);
+      padding: 0.75rem 2rem;
+      font-size: 0.75rem;
+      color: var(--color-text-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    footer a { color: var(--color-accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    footer a:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: 2px; }
+
+    /* ===== ARIA LIVE REGION ===== */
+    #live-region {
+      position: absolute;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .app-layout { grid-template-columns: 1fr; }
+      aside { flex-direction: row; flex-wrap: wrap; border-right: none; border-bottom: 1px solid var(--color-border); padding: 0.75rem; }
+      .sidebar-label { display: none; }
+      .panel-body { grid-template-columns: 1fr; }
+      .config-pane { border-right: none; border-bottom: 1px solid var(--color-border); }
+      .welcome-cards { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Skip link -->
+<a href="#main-content" class="skip-link">Pular para o conteúdo principal</a>
+
+<!-- ARIA live region para anúncios de leitores de tela -->
+<div id="live-region" aria-live="polite" aria-atomic="true"></div>
+
+<!-- Header -->
+<header role="banner">
+  <p class="logo" aria-label="ECJ Access Toolbox">ECJ <span>Access Toolbox</span></p>
+  <span class="badge" aria-label="Versão beta">Beta</span>
+</header>
+
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside role="navigation" aria-label="Componentes disponíveis">
+    <p class="sidebar-label" id="nav-label-phase1">Fase 1 — Críticos</p>
+    <button class="nav-btn" role="menuitem" data-panel="button" aria-current="false">
+      <span class="nav-icon" aria-hidden="true">🔘</span>
+      Button
+      <span class="nav-tag hot">crítico</span>
+    </button>
+    <button class="nav-btn" role="menuitem" data-panel="input" aria-current="false">
+      <span class="nav-icon" aria-hidden="true">✏️</span>
+      Input Field
+      <span class="nav-tag hot">crítico</span>
+    </button>
+    <button class="nav-btn" role="menuitem" data-panel="formgroup" aria-current="false">
+      <span class="nav-icon" aria-hidden="true">☑️</span>
+      Form Group
+      <span class="nav-tag hot">crítico</span>
+    </button>
+    <button class="nav-btn" role="menuitem" data-panel="select" aria-current="false">
+      <span class="nav-icon" aria-hidden="true">📋</span>
+      Select / Combobox
+      <span class="nav-tag hot">crítico</span>
+    </button>
+
+    <p class="sidebar-label" id="nav-label-phase2">Fase 2 — Essenciais</p>
+    <button class="nav-btn" role="menuitem" data-panel="modal" aria-current="false">
+      <span class="nav-icon" aria-hidden="true">🗔</span>
+      Modal / Dialog
+      <span class="nav-tag">em breve</span>
+    </button>
+    <button class="nav-btn" role="menuitem" data-panel="toast" aria-current="false">
+      <span class="nav-icon" aria-hidden="true">🔔</span>
+      Toast / Alert
+      <span class="nav-tag">em breve</span>
+    </button>
+    <button class="nav-btn" role="menuitem" data-panel="accordion" aria-current="false">
+      <span class="nav-icon" aria-hidden="true">🗂️</span>
+      Accordion
+      <span class="nav-tag">em breve</span>
+    </button>
+    <button class="nav-btn" role="menuitem" data-panel="tabs" aria-current="false">
+      <span class="nav-icon" aria-hidden="true">📑</span>
+      Tabs
+      <span class="nav-tag">em breve</span>
+    </button>
+  </aside>
+
+  <!-- Main -->
+  <main id="main-content" tabindex="-1">
+
+    <!-- Welcome -->
+    <div class="panel active" id="panel-welcome" role="region" aria-label="Bem-vindo">
+      <div class="welcome-panel">
+        <p class="welcome-icon" aria-hidden="true">🧰</p>
+        <h1 class="welcome-title">ECJ Access Toolbox</h1>
+        <p class="welcome-text">
+          Gere componentes HTML acessíveis prontos para produção. Escolha um componente ao lado, configure as opções e baixe o código — com ARIA correto, estados de foco visíveis e semântica real.
+        </p>
+        <nav class="welcome-cards" aria-label="Atalhos rápidos">
+          <button class="welcome-card" data-panel="button" onclick="activatePanel('button')">
+            <p class="wc-icon" aria-hidden="true">🔘</p>
+            <p class="wc-name">Button</p>
+            <p class="wc-desc">Estados, ARIA, foco</p>
+          </button>
+          <button class="welcome-card" data-panel="input" onclick="activatePanel('input')">
+            <p class="wc-icon" aria-hidden="true">✏️</p>
+            <p class="wc-name">Input Field</p>
+            <p class="wc-desc">Label real, aria-invalid</p>
+          </button>
+          <button class="welcome-card" data-panel="formgroup" onclick="activatePanel('formgroup')">
+            <p class="wc-icon" aria-hidden="true">☑️</p>
+            <p class="wc-name">Form Group</p>
+            <p class="wc-desc">Fieldset, legend, ARIA</p>
+          </button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- PANEL: BUTTON -->
+    <div class="panel" id="panel-button" role="region" aria-label="Gerador de Button">
+      <div class="panel-header">
+        <h1 class="panel-title">🔘 Button</h1>
+        <p class="panel-desc">Gera botões com estados completos, foco visível e atributos ARIA corretos.</p>
+      </div>
+      <div class="panel-body">
+        <!-- Config -->
+        <div class="config-pane" role="form" aria-label="Configurações do Button">
+          <div class="field-group">
+            <label class="field-label" for="btn-label">Texto do botão</label>
+            <input class="field-input" type="text" id="btn-label" value="Enviar formulário" autocomplete="off" />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="btn-variant">Variante</label>
+            <select class="field-select" id="btn-variant">
+              <option value="primary">Primary</option>
+              <option value="secondary">Secondary</option>
+              <option value="danger">Danger</option>
+              <option value="ghost">Ghost</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="btn-type">Tipo (type=)</label>
+            <select class="field-select" id="btn-type">
+              <option value="button">button</option>
+              <option value="submit">submit</option>
+              <option value="reset">reset</option>
+            </select>
+          </div>
+          <hr class="section-divider" />
+          <p class="section-title">Estados e ARIA</p>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" id="btn-disabled" />
+              Incluir estado desabilitado (aria-disabled)
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="btn-loading" checked />
+              Incluir estado loading (aria-busy)
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="btn-pressed" />
+              Incluir toggle (aria-pressed)
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="btn-expanded" />
+              Incluir expandable (aria-expanded)
+            </label>
+          </div>
+          <hr class="section-divider" />
+          <p class="section-title">Acessibilidade extra</p>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" id="btn-arialabel" />
+              Adicionar aria-label personalizado
+            </label>
+          </div>
+          <div class="field-group" id="btn-arialabel-field" style="display:none">
+            <label class="field-label" for="btn-arialabel-val">Valor do aria-label</label>
+            <input class="field-input" type="text" id="btn-arialabel-val" value="Enviar formulário de contato" />
+            <span class="field-hint">Use quando o texto visível não é suficientemente descritivo.</span>
+          </div>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" id="btn-includeCSS" checked />
+              Incluir CSS com foco visível e estados
+            </label>
+          </div>
+        </div>
+        <!-- Output -->
+        <div class="output-pane">
+          <div class="tabs-bar" role="tablist" aria-label="Visualização">
+            <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-preview-btn" id="tab-preview-btn-btn" data-target="tab-preview-btn">Preview</button>
+            <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-code-btn" id="tab-code-btn-btn" data-target="tab-code-btn">Código HTML</button>
+          </div>
+          <div class="tab-content active" id="tab-preview-btn" role="tabpanel" aria-labelledby="tab-preview-btn-btn">
+            <div class="preview-area">
+              <div class="preview-inner" id="preview-button"></div>
+            </div>
+          </div>
+          <div class="tab-content" id="tab-code-btn" role="tabpanel" aria-labelledby="tab-code-btn-btn">
+            <div class="code-area">
+              <textarea class="code-block" id="code-button" readonly aria-label="Código HTML gerado para Button" spellcheck="false"></textarea>
+              <button class="copy-btn" onclick="copyCode('code-button', this)" aria-label="Copiar código HTML do Button">Copiar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="generate-bar">
+        <button class="btn-generate" onclick="generateButton()" aria-label="Gerar código do Button">Gerar</button>
+        <button class="btn-download" onclick="downloadCode('code-button', 'ecj-button.html')" aria-label="Baixar código HTML do Button">⬇ Baixar .html</button>
+        <span class="generate-hint" aria-live="polite">HTML puro — sem dependências</span>
+      </div>
+    </div>
+
+    <!-- PANEL: INPUT -->
+    <div class="panel" id="panel-input" role="region" aria-label="Gerador de Input Field">
+      <div class="panel-header">
+        <h1 class="panel-title">✏️ Input Field</h1>
+        <p class="panel-desc">Gera inputs com label real, mensagem de erro acessível e estados aria-invalid / aria-required.</p>
+      </div>
+      <div class="panel-body">
+        <div class="config-pane" role="form" aria-label="Configurações do Input Field">
+          <div class="field-group">
+            <label class="field-label" for="inp-label">Label do campo</label>
+            <input class="field-input" type="text" id="inp-label" value="E-mail" autocomplete="off" />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="inp-id">ID do campo</label>
+            <input class="field-input" type="text" id="inp-id" value="email" autocomplete="off" />
+            <span class="field-hint">Usado no for= da label. Deve ser único na página.</span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="inp-type">Tipo (type=)</label>
+            <select class="field-select" id="inp-type">
+              <option value="text">text</option>
+              <option value="email" selected>email</option>
+              <option value="password">password</option>
+              <option value="tel">tel</option>
+              <option value="url">url</option>
+              <option value="number">number</option>
+              <option value="search">search</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="inp-placeholder">Placeholder</label>
+            <input class="field-input" type="text" id="inp-placeholder" value="seu@email.com" />
+            <span class="field-hint">Nunca substitui o label — é um complemento.</span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="inp-hint">Texto de dica (hint)</label>
+            <input class="field-input" type="text" id="inp-hint" value="Use o mesmo e-mail de cadastro." />
+            <span class="field-hint">Vinculado via aria-describedby.</span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="inp-error">Mensagem de erro</label>
+            <input class="field-input" type="text" id="inp-error" value="Por favor, insira um e-mail válido." />
+          </div>
+          <hr class="section-divider" />
+          <p class="section-title">Atributos e estados</p>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" id="inp-required" checked />
+              Campo obrigatório (aria-required="true")
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="inp-showError" />
+              Mostrar estado de erro (aria-invalid="true")
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="inp-autocomplete" checked />
+              Incluir autocomplete apropriado
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="inp-includeCSS" checked />
+              Incluir CSS com foco visível e estados
+            </label>
+          </div>
+        </div>
+        <div class="output-pane">
+          <div class="tabs-bar" role="tablist" aria-label="Visualização">
+            <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-preview-inp" id="tab-preview-inp-btn" data-target="tab-preview-inp">Preview</button>
+            <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-code-inp" id="tab-code-inp-btn" data-target="tab-code-inp">Código HTML</button>
+          </div>
+          <div class="tab-content active" id="tab-preview-inp" role="tabpanel" aria-labelledby="tab-preview-inp-btn">
+            <div class="preview-area">
+              <div class="preview-inner" id="preview-input"></div>
+            </div>
+          </div>
+          <div class="tab-content" id="tab-code-inp" role="tabpanel" aria-labelledby="tab-code-inp-btn">
+            <div class="code-area">
+              <textarea class="code-block" id="code-input" readonly aria-label="Código HTML gerado para Input Field" spellcheck="false"></textarea>
+              <button class="copy-btn" onclick="copyCode('code-input', this)" aria-label="Copiar código HTML do Input Field">Copiar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="generate-bar">
+        <button class="btn-generate" onclick="generateInput()" aria-label="Gerar código do Input Field">Gerar</button>
+        <button class="btn-download" onclick="downloadCode('code-input', 'ecj-input-field.html')" aria-label="Baixar código HTML do Input Field">⬇ Baixar .html</button>
+        <span class="generate-hint" aria-live="polite">HTML puro — sem dependências</span>
+      </div>
+    </div>
+
+    <!-- PANEL: FORM GROUP -->
+    <div class="panel" id="panel-formgroup" role="region" aria-label="Gerador de Form Group">
+      <div class="panel-header">
+        <h1 class="panel-title">☑️ Form Group</h1>
+        <p class="panel-desc">Gera grupos de checkbox ou radio com fieldset, legend e associação ARIA correta.</p>
+      </div>
+      <div class="panel-body">
+        <div class="config-pane" role="form" aria-label="Configurações do Form Group">
+          <div class="field-group">
+            <label class="field-label" for="fg-type">Tipo de grupo</label>
+            <select class="field-select" id="fg-type">
+              <option value="checkbox">Checkbox</option>
+              <option value="radio">Radio</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="fg-legend">Legenda do grupo (legend)</label>
+            <input class="field-input" type="text" id="fg-legend" value="Quais plataformas você usa?" />
+            <span class="field-hint">A legend é lida pelo leitor de tela antes de cada opção.</span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="fg-name">Nome do grupo (name=)</label>
+            <input class="field-input" type="text" id="fg-name" value="plataformas" />
+          </div>
+          <hr class="section-divider" />
+          <p class="section-title">Opções</p>
+          <div id="fg-options-container">
+            <div class="field-group fg-option-row">
+              <input class="field-input" type="text" value="Windows" placeholder="Texto da opção" aria-label="Opção 1" />
+            </div>
+            <div class="field-group fg-option-row">
+              <input class="field-input" type="text" value="macOS" placeholder="Texto da opção" aria-label="Opção 2" />
+            </div>
+            <div class="field-group fg-option-row">
+              <input class="field-input" type="text" value="Linux" placeholder="Texto da opção" aria-label="Opção 3" />
+            </div>
+          </div>
+          <button class="btn-generate" style="margin-top:0.5rem; font-size:0.8rem; padding:0.4rem 0.75rem;" onclick="addFgOption()" aria-label="Adicionar opção ao grupo">+ Adicionar opção</button>
+          <hr class="section-divider" />
+          <p class="section-title">Configurações</p>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" id="fg-required" />
+              Grupo obrigatório (aria-required no fieldset)
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="fg-includeCSS" checked />
+              Incluir CSS com foco visível
+            </label>
+          </div>
+        </div>
+        <div class="output-pane">
+          <div class="tabs-bar" role="tablist" aria-label="Visualização">
+            <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-preview-fg" id="tab-preview-fg-btn" data-target="tab-preview-fg">Preview</button>
+            <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-code-fg" id="tab-code-fg-btn" data-target="tab-code-fg">Código HTML</button>
+          </div>
+          <div class="tab-content active" id="tab-preview-fg" role="tabpanel" aria-labelledby="tab-preview-fg-btn">
+            <div class="preview-area">
+              <div class="preview-inner" id="preview-formgroup"></div>
+            </div>
+          </div>
+          <div class="tab-content" id="tab-code-fg" role="tabpanel" aria-labelledby="tab-code-fg-btn">
+            <div class="code-area">
+              <textarea class="code-block" id="code-formgroup" readonly aria-label="Código HTML gerado para Form Group" spellcheck="false"></textarea>
+              <button class="copy-btn" onclick="copyCode('code-formgroup', this)" aria-label="Copiar código HTML do Form Group">Copiar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="generate-bar">
+        <button class="btn-generate" onclick="generateFormGroup()" aria-label="Gerar código do Form Group">Gerar</button>
+        <button class="btn-download" onclick="downloadCode('code-formgroup', 'ecj-form-group.html')" aria-label="Baixar código HTML do Form Group">⬇ Baixar .html</button>
+        <span class="generate-hint" aria-live="polite">HTML puro — sem dependências</span>
+      </div>
+    </div>
+
+    <!-- PANEL: SELECT -->
+    <div class="panel" id="panel-select" role="region" aria-label="Gerador de Select / Combobox">
+      <div class="panel-header">
+        <h1 class="panel-title">📋 Select / Combobox</h1>
+        <p class="panel-desc">Gera selects nativos acessíveis com label, hint e estados de erro. Padrão ARIA Combobox opcional.</p>
+      </div>
+      <div class="panel-body">
+        <div class="config-pane" role="form" aria-label="Configurações do Select">
+          <div class="field-group">
+            <label class="field-label" for="sel-label">Label do select</label>
+            <input class="field-input" type="text" id="sel-label" value="Estado" autocomplete="off" />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="sel-id">ID do elemento</label>
+            <input class="field-input" type="text" id="sel-id" value="estado" autocomplete="off" />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="sel-placeholder">Opção padrão (placeholder)</label>
+            <input class="field-input" type="text" id="sel-placeholder" value="Selecione um estado" />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="sel-hint">Texto de dica</label>
+            <input class="field-input" type="text" id="sel-hint" value="Selecione o estado onde você reside." />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="sel-error">Mensagem de erro</label>
+            <input class="field-input" type="text" id="sel-error" value="Por favor, selecione um estado." />
+          </div>
+          <hr class="section-divider" />
+          <p class="section-title">Opções do select</p>
+          <div id="sel-options-container">
+            <div class="field-group fg-option-row">
+              <input class="field-input" type="text" value="Minas Gerais" placeholder="Opção" aria-label="Opção 1" />
+            </div>
+            <div class="field-group fg-option-row">
+              <input class="field-input" type="text" value="São Paulo" placeholder="Opção" aria-label="Opção 2" />
+            </div>
+            <div class="field-group fg-option-row">
+              <input class="field-input" type="text" value="Rio de Janeiro" placeholder="Opção" aria-label="Opção 3" />
+            </div>
+          </div>
+          <button class="btn-generate" style="margin-top:0.5rem; font-size:0.8rem; padding:0.4rem 0.75rem;" onclick="addSelOption()" aria-label="Adicionar opção ao select">+ Adicionar opção</button>
+          <hr class="section-divider" />
+          <p class="section-title">Configurações</p>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" id="sel-required" checked />
+              Campo obrigatório (aria-required)
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="sel-showError" />
+              Mostrar estado de erro (aria-invalid)
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="sel-includeCSS" checked />
+              Incluir CSS com foco visível e estados
+            </label>
+          </div>
+        </div>
+        <div class="output-pane">
+          <div class="tabs-bar" role="tablist" aria-label="Visualização">
+            <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-preview-sel" id="tab-preview-sel-btn" data-target="tab-preview-sel">Preview</button>
+            <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-code-sel" id="tab-code-sel-btn" data-target="tab-code-sel">Código HTML</button>
+          </div>
+          <div class="tab-content active" id="tab-preview-sel" role="tabpanel" aria-labelledby="tab-preview-sel-btn">
+            <div class="preview-area">
+              <div class="preview-inner" id="preview-select"></div>
+            </div>
+          </div>
+          <div class="tab-content" id="tab-code-sel" role="tabpanel" aria-labelledby="tab-code-sel-btn">
+            <div class="code-area">
+              <textarea class="code-block" id="code-select" readonly aria-label="Código HTML gerado para Select" spellcheck="false"></textarea>
+              <button class="copy-btn" onclick="copyCode('code-select', this)" aria-label="Copiar código HTML do Select">Copiar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="generate-bar">
+        <button class="btn-generate" onclick="generateSelect()" aria-label="Gerar código do Select">Gerar</button>
+        <button class="btn-download" onclick="downloadCode('code-select', 'ecj-select.html')" aria-label="Baixar código HTML do Select">⬇ Baixar .html</button>
+        <span class="generate-hint" aria-live="polite">HTML puro — sem dependências</span>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Footer -->
+<footer role="contentinfo">
+  <span>ECJ Access Toolbox — por <a href="https://site.zapia.com/0alwlra4" target="_blank" rel="noopener">Eu Concego Jogar</a></span>
+  <span>Componentes baseados em WCAG 2.2 + WAI-ARIA 1.2</span>
+</footer>
+
+<script>
+// ===== NAVEGAÇÃO =====
+function activatePanel(panelId) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    b.classList.remove('active');
+    b.setAttribute('aria-current', 'false');
+  });
+
+  const panel = document.getElementById('panel-' + panelId);
+  if (panel) {
+    panel.classList.add('active');
+    panel.focus();
+  }
+
+  document.querySelectorAll('[data-panel="' + panelId + '"]').forEach(b => {
+    b.classList.add('active');
+    b.setAttribute('aria-current', 'true');
+  });
+
+  announce('Painel ' + panelId + ' ativado');
+
+  // Auto-gera ao abrir
+  if (panelId === 'button') generateButton();
+  if (panelId === 'input') generateInput();
+  if (panelId === 'formgroup') generateFormGroup();
+  if (panelId === 'select') generateSelect();
+}
+
+document.querySelectorAll('.nav-btn[data-panel]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const panel = btn.getAttribute('data-panel');
+    const comingSoon = ['modal','toast','accordion','tabs'];
+    if (comingSoon.includes(panel)) {
+      announce('Este componente estará disponível em breve.');
+      return;
+    }
+    activatePanel(panel);
+  });
+});
+
+// ===== TABS =====
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const panel = btn.closest('.output-pane');
+    panel.querySelectorAll('.tab-btn').forEach(b => {
+      b.classList.remove('active');
+      b.setAttribute('aria-selected', 'false');
+    });
+    panel.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    btn.setAttribute('aria-selected', 'true');
+    document.getElementById(btn.getAttribute('data-target')).classList.add('active');
+  });
+});
+
+// ===== ARIA LIVE ANNOUNCE =====
+function announce(msg) {
+  const el = document.getElementById('live-region');
+  el.textContent = '';
+  setTimeout(() => { el.textContent = msg; }, 50);
+}
+
+// ===== COPY =====
+function copyCode(id, btn) {
+  const text = document.getElementById(id).value;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copiado!';
+    btn.classList.add('copied');
+    announce('Código copiado para a área de transferência.');
+    setTimeout(() => {
+      btn.textContent = 'Copiar';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+// ===== DOWNLOAD =====
+function downloadCode(id, filename) {
+  const code = document.getElementById(id).value;
+  if (!code.trim()) { announce('Gere o código primeiro antes de baixar.'); return; }
+  const blob = new Blob([code], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  announce('Download do arquivo ' + filename + ' iniciado.');
+}
+
+// ===== INDENT HELPER =====
+function ind(n) { return '  '.repeat(n); }
+
+// ===== GENERATOR: BUTTON =====
+function generateButton() {
+  const label     = document.getElementById('btn-label').value.trim() || 'Botão';
+  const variant   = document.getElementById('btn-variant').value;
+  const type      = document.getElementById('btn-type').value;
+  const disabled  = document.getElementById('btn-disabled').checked;
+  const loading   = document.getElementById('btn-loading').checked;
+  const pressed   = document.getElementById('btn-pressed').checked;
+  const expanded  = document.getElementById('btn-expanded').checked;
+  const ariaLabel = document.getElementById('btn-arialabel').checked;
+  const ariaLabelVal = document.getElementById('btn-arialabel-val').value.trim();
+  const includeCSS = document.getElementById('btn-includeCSS').checked;
+
+  const variantColors = {
+    primary:   { bg: '#1d4ed8', hover: '#1e40af', text: '#fff', focus: '#93c5fd' },
+    secondary: { bg: '#374151', hover: '#1f2937', text: '#fff', focus: '#9ca3af' },
+    danger:    { bg: '#dc2626', hover: '#b91c1c', text: '#fff', focus: '#fca5a5' },
+    ghost:     { bg: 'transparent', hover: '#f3f4f6', text: '#1d4ed8', focus: '#93c5fd', border: '#1d4ed8' }
+  };
+  const c = variantColors[variant];
+
+  const ariaLabelAttr = ariaLabel && ariaLabelVal ? `\n${ind(1)}aria-label="${ariaLabelVal}"` : '';
+  const ariaDisabled  = disabled  ? `\n${ind(1)}aria-disabled="true"` : '';
+  const ariaBusy      = loading   ? `\n${ind(1)}aria-busy="false"` : '';
+  const ariaPressed   = pressed   ? `\n${ind(1)}aria-pressed="false"` : '';
+  const ariaExpanded  = expanded  ? `\n${ind(1)}aria-expanded="false"` : '';
+
+  const css = includeCSS ? `<style>
+  .ecj-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1;
+    border-radius: 6px;
+    border: ${c.border ? `2px solid ${c.border}` : '2px solid transparent'};
+    background: ${c.bg};
+    color: ${c.text};
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+    text-decoration: none;
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .ecj-btn:hover:not([aria-disabled="true"]) {
+    background: ${c.hover};
+  }
+  .ecj-btn:active:not([aria-disabled="true"]) {
+    transform: scale(0.97);
+  }
+  /* Foco visível — nunca remova o outline */
+  .ecj-btn:focus-visible {
+    outline: 3px solid ${c.focus};
+    outline-offset: 3px;
+  }
+  /* Estado desabilitado via aria-disabled (mantém foco) */
+  .ecj-btn[aria-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  /* Estado loading */
+  .ecj-btn[aria-busy="true"] {
+    cursor: wait;
+    opacity: 0.75;
+  }
+  /* Estado pressionado (toggle) */
+  .ecj-btn[aria-pressed="true"] {
+    background: ${c.hover};
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+  }
+</style>
+
+` : '';
+
+  const stateComment = (disabled || loading || pressed || expanded) ? `
+<!--
+  ESTADOS DISPONÍVEIS:
+  ${disabled  ? '- aria-disabled="true"  → Botão desabilitado (mantém foco, ao contrário do disabled puro)\n  ' : ''}${loading   ? '- aria-busy="true"      → Botão em loading (combine com spinner e sr-only)\n  ' : ''}${pressed   ? '- aria-pressed="true"   → Botão toggle ativado\n  ' : ''}${expanded  ? '- aria-expanded="true"  → Painel/menu associado expandido\n  ' : ''}-->
+` : '';
+
+  const btnHTML = `<button
+  type="${type}"
+  class="ecj-btn"${ariaLabelAttr}${ariaDisabled}${ariaBusy}${ariaPressed}${ariaExpanded}
+>
+  ${label}
+</button>`;
+
+  // Variantes extras
+  const extras = [];
+  if (disabled) extras.push(`\n<!-- Estado: Desabilitado -->\n<button\n  type="${type}"\n  class="ecj-btn"\n  aria-disabled="true"\n  onclick="return false;"\n>\n  ${label} (desabilitado)\n</button>`);
+  if (loading)  extras.push(`\n<!-- Estado: Loading -->\n<button\n  type="${type}"\n  class="ecj-btn"\n  aria-busy="true"\n>\n  <span aria-hidden="true">⏳</span>\n  <span class="sr-only">Carregando...</span>\n  ${label}\n</button>`);
+  if (pressed)  extras.push(`\n<!-- Estado: Toggle Ativado -->\n<button\n  type="${type}"\n  class="ecj-btn"\n  aria-pressed="true"\n>\n  ${label} (ativo)\n</button>`);
+
+  const srOnly = (loading) ? `\n<style>\n  .sr-only {\n    position: absolute;\n    width: 1px;\n    height: 1px;\n    padding: 0;\n    margin: -1px;\n    overflow: hidden;\n    clip: rect(0,0,0,0);\n    white-space: nowrap;\n    border: 0;\n  }\n</style>\n` : '';
+
+  const finalCode = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>ECJ Button — Acessível</title>
+${srOnly}${css}</head>
+<body>
+${stateComment}
+${btnHTML}
+${extras.join('\n')}
+
+<!--
+  Gerado por ECJ Access Toolbox
+  https://site.zapia.com/0alwlra4
+  Baseado em WCAG 2.2 + WAI-ARIA 1.2
+-->
+</body>
+</html>`;
+
+  document.getElementById('code-button').value = finalCode;
+
+  // Preview
+  const previewEl = document.getElementById('preview-button');
+  previewEl.innerHTML = '';
+  const previewCSS = `<style>
+    .ecj-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      padding: 0.625rem 1.25rem; font-family: inherit; font-size: 1rem; font-weight: 600;
+      line-height: 1; border-radius: 6px; border: ${c.border ? `2px solid ${c.border}` : '2px solid transparent'};
+      background: ${c.bg}; color: ${c.text}; cursor: pointer; transition: background 0.15s ease;
+      min-width: 44px; min-height: 44px; margin: 0.5rem 0.5rem 0.5rem 0;
+    }
+    .ecj-btn:focus-visible { outline: 3px solid ${c.focus}; outline-offset: 3px; }
+    .ecj-btn[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+    .ecj-btn[aria-busy="true"] { cursor: wait; opacity: 0.75; }
+  </style>`;
+  const btns = [`<button type="${type}" class="ecj-btn"${ariaLabelAttr.replace(/\n\s*/g,' ')}>${label}</button>`];
+  if (disabled) btns.push(`<button type="${type}" class="ecj-btn" aria-disabled="true" onclick="return false;">${label} (desabilitado)</button>`);
+  if (loading)  btns.push(`<button type="${type}" class="ecj-btn" aria-busy="true">⏳ ${label}</button>`);
+  if (pressed)  btns.push(`<button type="${type}" class="ecj-btn" aria-pressed="true">${label} (ativo)</button>`);
+  previewEl.innerHTML = previewCSS + btns.join('\n');
+
+  announce('Código do Button gerado.');
+}
+
+// Toggle aria-label field
+document.getElementById('btn-arialabel').addEventListener('change', function() {
+  document.getElementById('btn-arialabel-field').style.display = this.checked ? 'block' : 'none';
+});
+
+// ===== GENERATOR: INPUT =====
+function generateInput() {
+  const labelTxt   = document.getElementById('inp-label').value.trim() || 'Campo';
+  const fieldId    = document.getElementById('inp-id').value.trim() || 'campo';
+  const type       = document.getElementById('inp-type').value;
+  const placeholder = document.getElementById('inp-placeholder').value.trim();
+  const hint       = document.getElementById('inp-hint').value.trim();
+  const error      = document.getElementById('inp-error').value.trim();
+  const required   = document.getElementById('inp-required').checked;
+  const showError  = document.getElementById('inp-showError').checked;
+  const includeCSS = document.getElementById('inp-includeCSS').checked;
+  const autocomplete = document.getElementById('inp-autocomplete').checked;
+
+  const hintId  = fieldId + '-hint';
+  const errorId = fieldId + '-error';
+  const describedby = [hint && hintId, showError && error && errorId].filter(Boolean).join(' ');
+
+  const acMap = { email: 'email', tel: 'tel', text: 'name', url: 'url', password: 'current-password', search: 'off', number: 'off' };
+  const acAttr = autocomplete ? `\n  autocomplete="${acMap[type] || 'off'}"` : '';
+
+  const css = includeCSS ? `<style>
+  .ecj-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    max-width: 400px;
+    font-family: inherit;
+  }
+  .ecj-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #111827;
+  }
+  .ecj-label .required-mark {
+    color: #dc2626;
+    margin-left: 2px;
+  }
+  .ecj-input {
+    padding: 0.625rem 0.75rem;
+    font-size: 1rem;
+    font-family: inherit;
+    border: 2px solid #d1d5db;
+    border-radius: 6px;
+    background: #fff;
+    color: #111827;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    min-height: 44px;
+  }
+  /* Foco visível — nunca remova */
+  .ecj-input:focus {
+    outline: none;
+    border-color: #1d4ed8;
+    box-shadow: 0 0 0 3px rgba(29,78,216,0.25);
+  }
+  /* Estado de erro */
+  .ecj-input[aria-invalid="true"] {
+    border-color: #dc2626;
+  }
+  .ecj-input[aria-invalid="true"]:focus {
+    box-shadow: 0 0 0 3px rgba(220,38,38,0.25);
+  }
+  .ecj-hint {
+    font-size: 0.8rem;
+    color: #6b7280;
+  }
+  .ecj-error {
+    font-size: 0.8rem;
+    color: #dc2626;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .ecj-error::before { content: "⚠"; }
+</style>
+
+` : '';
+
+  const labelEl = `<label class="ecj-label" for="${fieldId}">\n    ${labelTxt}${required ? '\n    <span class="required-mark" aria-hidden="true">*</span>' : ''}\n  </label>`;
+  const hintEl = hint ? `\n  <span class="ecj-hint" id="${hintId}">${hint}</span>` : '';
+  const errorEl = error ? `\n  <span class="ecj-error" id="${errorId}" role="alert"${showError ? '' : ' hidden'}>${error}</span>` : '';
+  const inputEl = `<input
+    type="${type}"
+    id="${fieldId}"
+    name="${fieldId}"
+    class="ecj-input"${placeholder ? `\n    placeholder="${placeholder}"` : ''}${required ? `\n    aria-required="true"` : ''}${showError ? `\n    aria-invalid="true"` : ''}${describedby ? `\n    aria-describedby="${describedby}"` : ''}${acAttr}
+  />`;
+
+  const finalCode = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>ECJ Input Field — Acessível</title>
+${css}</head>
+<body>
+
+  <div class="ecj-field">
+    ${labelEl}
+    ${inputEl}${hintEl}${errorEl}
+  </div>
+
+<!--
+  Gerado por ECJ Access Toolbox
+  https://site.zapia.com/0alwlra4
+  Baseado em WCAG 2.2 + WAI-ARIA 1.2
+-->
+</body>
+</html>`;
+
+  document.getElementById('code-input').value = finalCode;
+
+  // Preview
+  const previewEl = document.getElementById('preview-input');
+  const previewCSS = `<style>
+    .ecj-field { display:flex; flex-direction:column; gap:0.375rem; max-width:100%; font-family:inherit; }
+    .ecj-label { font-size:0.875rem; font-weight:600; color:#111827; }
+    .required-mark { color:#dc2626; margin-left:2px; }
+    .ecj-input { padding:0.625rem 0.75rem; font-size:1rem; font-family:inherit; border:2px solid ${showError ? '#dc2626' : '#d1d5db'}; border-radius:6px; background:#fff; color:#111827; min-height:44px; width:100%; }
+    .ecj-input:focus { outline:none; border-color:#1d4ed8; box-shadow:0 0 0 3px rgba(29,78,216,0.25); }
+    .ecj-hint { font-size:0.8rem; color:#6b7280; }
+    .ecj-error { font-size:0.8rem; color:#dc2626; font-weight:500; }
+  </style>`;
+  previewEl.innerHTML = `${previewCSS}
+  <div class="ecj-field">
+    <label class="ecj-label" for="prev-${fieldId}">${labelTxt}${required ? '<span class="required-mark" aria-hidden="true">*</span>' : ''}</label>
+    <input type="${type}" id="prev-${fieldId}" class="ecj-input" ${placeholder ? `placeholder="${placeholder}"` : ''} ${showError ? 'aria-invalid="true"' : ''} />
+    ${hint ? `<span class="ecj-hint">${hint}</span>` : ''}
+    ${showError && error ? `<span class="ecj-error">⚠ ${error}</span>` : ''}
+  </div>`;
+
+  announce('Código do Input Field gerado.');
+}
+
+// ===== GENERATOR: FORM GROUP =====
+function addFgOption() {
+  const container = document.getElementById('fg-options-container');
+  const count = container.querySelectorAll('.fg-option-row').length + 1;
+  const div = document.createElement('div');
+  div.className = 'field-group fg-option-row';
+  div.innerHTML = `<input class="field-input" type="text" placeholder="Texto da opção" aria-label="Opção ${count}" />`;
+  container.appendChild(div);
+  div.querySelector('input').focus();
+}
+
+function addSelOption() {
+  const container = document.getElementById('sel-options-container');
+  const count = container.querySelectorAll('.fg-option-row').length + 1;
+  const div = document.createElement('div');
+  div.className = 'field-group fg-option-row';
+  div.innerHTML = `<input class="field-input" type="text" placeholder="Opção" aria-label="Opção ${count}" />`;
+  container.appendChild(div);
+  div.querySelector('input').focus();
+}
+
+function generateFormGroup() {
+  const type     = document.getElementById('fg-type').value;
+  const legend   = document.getElementById('fg-legend').value.trim() || 'Grupo';
+  const name     = document.getElementById('fg-name').value.trim() || 'grupo';
+  const required = document.getElementById('fg-required').checked;
+  const includeCSS = document.getElementById('fg-includeCSS').checked;
+
+  const optionEls = document.querySelectorAll('#fg-options-container .fg-option-row input');
+  const options = Array.from(optionEls).map(i => i.value.trim()).filter(Boolean);
+
+  if (!options.length) { announce('Adicione pelo menos uma opção antes de gerar.'); return; }
+
+  const css = includeCSS ? `<style>
+  .ecj-fieldset {
+    border: 2px solid #d1d5db;
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    max-width: 400px;
+    font-family: inherit;
+  }
+  .ecj-legend {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #111827;
+    padding: 0 0.5rem;
+  }
+  .ecj-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    margin-top: 0.75rem;
+    list-style: none;
+    padding: 0;
+    margin: 0.75rem 0 0;
+  }
+  .ecj-option {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.9rem;
+    color: #374151;
+    cursor: pointer;
+    min-height: 44px;
+  }
+  .ecj-option input[type="${type}"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #1d4ed8;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  /* Foco visível no item */
+  .ecj-option input[type="${type}"]:focus-visible {
+    outline: 3px solid #93c5fd;
+    outline-offset: 2px;
+  }
+</style>
+
+` : '';
+
+  const slug = (s) => s.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  const items = options.map((opt, i) => {
+    const id = `${name}-${slug(opt)}-${i}`;
+    return `${ind(2)}<li>\n${ind(3)}<label class="ecj-option">\n${ind(4)}<input type="${type}" id="${id}" name="${name}"${type === 'radio' ? '' : ` id="${id}"`} value="${slug(opt)}" />\n${ind(4)}${opt}\n${ind(3)}</label>\n${ind(2)}</li>`;
+  }).join('\n');
+
+  const finalCode = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>ECJ Form Group — Acessível</title>
+${css}</head>
+<body>
+
+  <fieldset class="ecj-fieldset"${required ? ' aria-required="true"' : ''}>
+    <legend class="ecj-legend">${legend}${required ? ' <span aria-hidden="true">*</span>' : ''}</legend>
+    <ul class="ecj-options" role="list">
+${items}
+    </ul>
+  </fieldset>
+
+<!--
+  Gerado por ECJ Access Toolbox
+  https://site.zapia.com/0alwlra4
+  Baseado em WCAG 2.2 + WAI-ARIA 1.2
+-->
+</body>
+</html>`;
+
+  document.getElementById('code-formgroup').value = finalCode;
+
+  // Preview
+  const previewEl = document.getElementById('preview-formgroup');
+  const slug2 = (s) => s.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  const previewItems = options.map((opt, i) => {
+    const id = `prev-${name}-${slug2(opt)}-${i}`;
+    return `<li><label style="display:flex;align-items:center;gap:0.6rem;min-height:44px;font-size:0.9rem;color:#374151;cursor:pointer;"><input type="${type}" name="prev-${name}" value="${slug2(opt)}" style="width:18px;height:18px;accent-color:#1d4ed8;" />${opt}</label></li>`;
+  }).join('');
+  previewEl.innerHTML = `<fieldset style="border:2px solid #d1d5db;border-radius:8px;padding:1rem 1.25rem;max-width:100%;font-family:inherit;"><legend style="font-size:0.875rem;font-weight:700;color:#111827;padding:0 0.5rem;">${legend}</legend><ul style="list-style:none;padding:0;margin:0.75rem 0 0;display:flex;flex-direction:column;gap:0.625rem;">${previewItems}</ul></fieldset>`;
+
+  announce('Código do Form Group gerado.');
+}
+
+// ===== GENERATOR: SELECT =====
+function generateSelect() {
+  const labelTxt   = document.getElementById('sel-label').value.trim() || 'Campo';
+  const fieldId    = document.getElementById('sel-id').value.trim() || 'campo';
+  const placeholder = document.getElementById('sel-placeholder').value.trim();
+  const hint       = document.getElementById('sel-hint').value.trim();
+  const error      = document.getElementById('sel-error').value.trim();
+  const required   = document.getElementById('sel-required').checked;
+  const showError  = document.getElementById('sel-showError').checked;
+  const includeCSS = document.getElementById('sel-includeCSS').checked;
+
+  const hintId  = fieldId + '-hint';
+  const errorId = fieldId + '-error';
+  const describedby = [hint && hintId, showError && error && errorId].filter(Boolean).join(' ');
+
+  const optionEls = document.querySelectorAll('#sel-options-container .fg-option-row input');
+  const options = Array.from(optionEls).map(i => i.value.trim()).filter(Boolean);
+
+  const slug = (s) => s.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+
+  const css = includeCSS ? `<style>
+  .ecj-select-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    max-width: 400px;
+    font-family: inherit;
+  }
+  .ecj-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #111827;
+  }
+  .ecj-select-wrap {
+    position: relative;
+  }
+  .ecj-select {
+    width: 100%;
+    padding: 0.625rem 2.5rem 0.625rem 0.75rem;
+    font-size: 1rem;
+    font-family: inherit;
+    border: 2px solid ${showError ? '#dc2626' : '#d1d5db'};
+    border-radius: 6px;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 0.75rem center;
+    appearance: none;
+    color: #111827;
+    cursor: pointer;
+    min-height: 44px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .ecj-select:focus {
+    outline: none;
+    border-color: #1d4ed8;
+    box-shadow: 0 0 0 3px rgba(29,78,216,0.25);
+  }
+  .ecj-select[aria-invalid="true"] {
+    border-color: #dc2626;
+  }
+  .ecj-select[aria-invalid="true"]:focus {
+    box-shadow: 0 0 0 3px rgba(220,38,38,0.25);
+  }
+  .ecj-hint {
+    font-size: 0.8rem;
+    color: #6b7280;
+  }
+  .ecj-error {
+    font-size: 0.8rem;
+    color: #dc2626;
+    font-weight: 500;
+  }
+  .ecj-error::before { content: "⚠ "; }
+</style>
+
+` : '';
+
+  const optItems = options.map(opt => `      <option value="${slug(opt)}">${opt}</option>`).join('\n');
+  const placeholderOpt = placeholder ? `\n      <option value="" disabled selected hidden>${placeholder}</option>` : '';
+
+  const labelEl = `<label class="ecj-label" for="${fieldId}">${labelTxt}${required ? ' <span aria-hidden="true">*</span>' : ''}</label>`;
+  const hintEl  = hint  ? `\n    <span class="ecj-hint" id="${hintId}">${hint}</span>` : '';
+  const errorEl = error ? `\n    <span class="ecj-error" id="${errorId}" role="alert"${showError ? '' : ' hidden'}>${error}</span>` : '';
+
+  const finalCode = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>ECJ Select — Acessível</title>
+${css}</head>
+<body>
+
+  <div class="ecj-select-field">
+    ${labelEl}
+    <div class="ecj-select-wrap">
+      <select
+        id="${fieldId}"
+        name="${fieldId}"
+        class="ecj-select"${required ? `\n        aria-required="true"` : ''}${showError ? `\n        aria-invalid="true"` : ''}${describedby ? `\n        aria-describedby="${describedby}"` : ''}
+      >${placeholderOpt}
+${optItems}
+      </select>
+    </div>${hintEl}${errorEl}
+  </div>
+
+<!--
+  Gerado por ECJ Access Toolbox
+  https://site.zapia.com/0alwlra4
+  Baseado em WCAG 2.2 + WAI-ARIA 1.2
+-->
+</body>
+</html>`;
+
+  document.getElementById('code-select').value = finalCode;
+
+  // Preview
+  const previewEl = document.getElementById('preview-select');
+  const previewOpts = options.map(opt => `<option value="${slug(opt)}">${opt}</option>`).join('');
+  previewEl.innerHTML = `<div style="display:flex;flex-direction:column;gap:0.375rem;max-width:100%;font-family:inherit;">
+    <label style="font-size:0.875rem;font-weight:600;color:#111827;" for="prev-${fieldId}">${labelTxt}${required ? ' <span style="color:#dc2626">*</span>' : ''}</label>
+    <select id="prev-${fieldId}" style="width:100%;padding:0.625rem 0.75rem;font-size:1rem;border:2px solid ${showError ? '#dc2626' : '#d1d5db'};border-radius:6px;background:#fff;color:#111827;min-height:44px;">
+      ${placeholder ? `<option value="" disabled selected>${placeholder}</option>` : ''}
+      ${previewOpts}
+    </select>
+    ${hint ? `<span style="font-size:0.8rem;color:#6b7280;">${hint}</span>` : ''}
+    ${showError && error ? `<span style="font-size:0.8rem;color:#dc2626;font-weight:500;">⚠ ${error}</span>` : ''}
+  </div>`;
+
+  announce('Código do Select gerado.');
+}
+
+// Auto-gera ao mudar campos de input em tempo real
+['inp-label','inp-id','inp-type','inp-placeholder','inp-hint','inp-error'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', generateInput);
+});
+['inp-required','inp-showError','inp-autocomplete','inp-includeCSS'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', generateInput);
+});
+['btn-label','btn-variant','btn-type'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', generateButton);
+});
+['btn-disabled','btn-loading','btn-pressed','btn-expanded','btn-includeCSS','btn-arialabel'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', generateButton);
+});
+['sel-label','sel-id','sel-placeholder','sel-hint','sel-error'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', generateSelect);
+});
+['sel-required','sel-showError','sel-includeCSS'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', generateSelect);
+});
+['fg-type','fg-legend','fg-name'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', () => {});
+});
+['fg-required','fg-includeCSS'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', () => {});
+});
+</script>
+</body>
+</html>
