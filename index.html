@@ -422,6 +422,48 @@
     footer a:hover { text-decoration: underline; }
     footer a:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: 2px; }
 
+    /* ===== LANG TOGGLE ===== */
+    .lang-toggle {
+      margin-left: auto;
+      display: flex;
+      gap: 0.25rem;
+      align-items: center;
+    }
+    .lang-btn {
+      background: transparent;
+      border: 1px solid var(--color-border);
+      color: var(--color-text-muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 99px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .lang-btn:hover { background: var(--color-surface2); color: var(--color-text); }
+    .lang-btn.active { background: var(--color-accent); border-color: var(--color-accent); color: #fff; }
+    .lang-btn:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+
+    /* ===== PAYPAL BUTTON ===== */
+    .paypal-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #ffc439;
+      color: #003087;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.35rem 0.9rem;
+      border-radius: 99px;
+      border: none;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      white-space: nowrap;
+    }
+    .paypal-btn:hover { background: #f0b429; transform: scale(1.03); }
+    .paypal-btn:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+
     /* ===== ARIA LIVE REGION ===== */
     #live-region {
       position: absolute;
@@ -454,6 +496,13 @@
 <header role="banner">
   <p class="logo" aria-label="ECJ Access Toolbox">ECJ <span>Access Toolbox</span></p>
   <span class="badge" aria-label="Versão beta">Beta</span>
+  <div class="lang-toggle" role="group" aria-label="Selecionar idioma / Select language">
+    <button class="lang-btn active" id="lang-pt" onclick="setLang('pt')" aria-pressed="true">PT</button>
+    <button class="lang-btn" id="lang-en" onclick="setLang('en')" aria-pressed="false">EN</button>
+  </div>
+  <a class="paypal-btn" href="https://www.paypal.com/donate/?business=aanderson.carvalho%40hotmail.com&currency_code=USD" target="_blank" rel="noopener" aria-label="Contribuir com o projeto via PayPal / Support this project via PayPal">
+    ☕ <span data-i18n="donate">Contribuir</span>
+  </a>
 </header>
 
 <div class="app-layout">
