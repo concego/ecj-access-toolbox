@@ -1,99 +1,127 @@
 # 🧰 ECJ Access Toolbox
 
-**Gerador de componentes HTML acessíveis — prontos para produção.**
+**Gerador de componentes HTML acessíveis — prontos para produção.**  
+*Accessible HTML component generator — production-ready.*
 
-Criado por [Anderson Carvalho](https://site.zapia.com/0alwlra4) · [Eu Concego Jogar](https://site.zapia.com/0alwlra4)
-
----
-
-## O que é
-
-O ECJ Access Toolbox é uma ferramenta que gera código HTML acessível e pronto para uso — com ARIA correto, foco visível e semântica real, baseado em WCAG 2.2 e WAI-ARIA 1.2.
-
-Feito para desenvolvedores que estão começando na acessibilidade web e precisam de um ponto de partida sólido, sem ter que decifrar a especificação do zero.
+[![GitHub Pages](https://img.shields.io/badge/Live-GitHub%20Pages-blue?logo=github)](https://concego.github.io/ecj-access-toolbox/)
+[![WCAG 2.2](https://img.shields.io/badge/WCAG-2.2%20AA-green)](https://www.w3.org/TR/WCAG22/)
+[![WAI-ARIA 1.2](https://img.shields.io/badge/WAI--ARIA-1.2-green)](https://www.w3.org/TR/wai-aria-1.2/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
 ---
 
-## Como usar
+## 🌐 Acesse / Access
 
-### Opção 1 — GitHub Pages (online)
+**https://concego.github.io/ecj-access-toolbox/**
 
-Acesse diretamente no navegador:
-
-👉 **https://concego.github.io/ecj-access-toolbox/**
-
-### Opção 2 — Local (offline)
-
-1. Clone o repositório:
-   ```bash
-   git clone https://github.com/concego/ecj-access-toolbox.git
-   ```
-2. Abra o arquivo `index.html` diretamente no seu navegador.
-
-Não precisa de servidor, build, npm, node ou dependências. É um arquivo HTML puro.
+Ferramenta 100% client-side. Sem backend, sem login, sem instalação.  
+100% client-side tool. No backend, no login, no installation.
 
 ---
 
-## Componentes disponíveis (v1)
+## O que é / What is it
 
-| Componente | Recursos de acessibilidade |
+O **ECJ Access Toolbox** nasceu de uma observação real: a maioria dos erros de acessibilidade reportados por usuários reais (comunidade r/Accessibility, auditorias do mundo real) é causada por desenvolvedores que **não sabem o que estão fazendo de errado**.
+
+O objetivo não é ensinar teoria — é **entregar código pronto**, correto e explicado, para que o desenvolvedor copie, cole e aprenda na prática.
+
+> Trabalho com acessibilidade digital desde 2004. Sou cego e uso NVDA e TalkBack diariamente.  
+> — Anderson Carvalho, [Eu Concego Jogar](https://site.zapia.com/0alwlra4)
+
+---
+
+## ✨ Componentes disponíveis / Available Components
+
+### Fase 1 — Críticos / Phase 1 — Critical
+
+| Componente | O que resolve / What it solves |
 |---|---|
-| **Button** | `aria-disabled`, `aria-busy`, `aria-pressed`, `aria-expanded`, `:focus-visible`, variantes visuais |
-| **Input Field** | `<label>` real com `for=`, `aria-describedby`, `aria-required`, `aria-invalid`, `role="alert"` para erro |
-| **Form Group** | `<fieldset>` + `<legend>`, radio e checkbox group, foco visível |
-| **Select** | Label real, `aria-describedby`, `aria-invalid`, `aria-required`, erro semântico |
+| **Button** | Estados completos (`aria-disabled`, `aria-busy`, `aria-pressed`, `aria-expanded`), foco visível, variantes primary/secondary/danger |
+| **Input Field** | Label real (não placeholder), `aria-invalid`, `aria-describedby`, autocomplete, estado de erro acessível |
+| **Form Group** | `<fieldset>` + `<legend>` corretos para checkbox/radio, `aria-required`, associação semântica real |
+| **Select / Combobox** | Label real, `aria-invalid`, placeholder acessível, estado de erro, hint text |
+
+### Fase 2 — Em breve / Phase 2 — Coming Soon
+
+- Modal / Dialog
+- Toast / Alert
+- Accordion
+- Tabs
 
 ---
 
-## Como funciona
+## 🔑 Princípios de design / Design Principles
 
-1. Escolha o componente na barra lateral
-2. Configure as opções (nome, estados, variações)
-3. Clique em **Gerar código**
-4. Copie ou baixe o arquivo `.html` gerado
-
----
-
-## Por que HTML puro?
-
-HTML puro é o denominador comum. Qualquer desenvolvedor adapta para React, Vue, Angular ou qualquer outro framework. A ferramenta entrega a base semântica correta — a integração com o framework é decisão sua.
+- **Semântica antes de ARIA** — usar o elemento HTML correto sempre que possível
+- **`aria-disabled` em vez de `disabled`** — mantém o elemento focável por leitores de tela
+- **`:focus-visible` por padrão** — foco visível incluído em todo componente gerado
+- **`.sr-only` incluído** — classe utilitária para conteúdo visível apenas para leitores de tela
+- **Framework-agnostic** — HTML/CSS puro, funciona em qualquer stack
 
 ---
 
-## Fundamentos técnicos
+## 🛠 Como usar / How to use
 
-- **WCAG 2.2** — critérios de sucesso aplicados em cada componente
-- **WAI-ARIA 1.2** — papéis, propriedades e estados corretos
-- **Primeira regra do ARIA** — elemento nativo sempre preferido
-- **Foco visível** — `:focus-visible` em todos os componentes interativos
-- **Semântica antes de estilo** — o código funciona sem CSS
+1. Acesse **https://concego.github.io/ecj-access-toolbox/**
+2. Escolha o componente na barra lateral
+3. Configure as opções (variante, estados ARIA, textos)
+4. Veja o preview em tempo real
+5. Copie o código ou baixe o `.html`
 
----
-
-## Sobre o autor
-
-Anderson Carvalho é cego, usa NVDA e TalkBack diariamente como sua forma real de navegar pelo mundo — não como simulação de teste.
-
-Trabalha com acessibilidade digital desde 2004: auditorias WCAG, desenvolvimento front-end acessível e inclusão digital. É cofundador do **Eu Concego Jogar**, projeto brasileiro focado na inclusão digital de jogadores cegos e com deficiência visual.
-
-- 🌐 Portfólio: https://site.zapia.com/0alwlra4
-- 📧 Contato: euconcego@gmail.com
-- 🎮 Projeto: [Eu Concego Jogar](https://site.zapia.com/0alwlra4)
+A ferramenta é bilíngue — clique em **PT** ou **EN** no cabeçalho.
 
 ---
 
-## Roadmap
+## 💛 Contribuir / Support
 
-- [x] v1 — Button, Input Field, Form Group, Select (HTML puro)
-- [ ] v2 — Modal/Dialog, Toast/Alert, Accordion, Tabs
-- [ ] v3 — Export para React e Vue
+Se esta ferramenta ajudou seu projeto, considere apoiar:
 
----
-
-## Licença
-
-MIT — pode usar, modificar e distribuir livremente com atribuição.
+[![PayPal](https://img.shields.io/badge/Contribuir-PayPal-ffc439?logo=paypal&logoColor=003087)](https://www.paypal.com/donate/?business=aanderson.carvalho%40hotmail.com&currency_code=USD)
 
 ---
 
-*ECJ Access Toolbox · Baseado em WCAG 2.2 + WAI-ARIA 1.2*
+## 📦 Estrutura / Structure
+
+```
+ecj-access-toolbox/
+└── index.html   # Ferramenta completa — single-file app
+```
+
+Projeto intencionalmente mantido como arquivo único para máxima portabilidade.  
+Intentionally kept as a single file for maximum portability.
+
+---
+
+## 📋 Roadmap
+
+### v1.0 (atual / current) — Free
+- [x] Button
+- [x] Input Field
+- [x] Form Group
+- [x] Select / Combobox
+- [x] Interface bilíngue PT/EN
+- [x] Preview em tempo real
+- [x] Download individual por componente
+
+### v2.0 (Ko-fi) — Planned
+- [ ] Modal / Dialog
+- [ ] Toast / Alert
+- [ ] Accordion
+- [ ] Tabs
+- [ ] Exportação React e Vue
+
+---
+
+## 🤝 Sobre / About
+
+**Eu Concego Jogar (ECJ)** é um projeto de inclusão digital criado por Anderson Carvalho, especialista em acessibilidade com mais de 20 anos de experiência — usuário diário de NVDA e TalkBack.
+
+- 🌐 [Site / Portfolio](https://site.zapia.com/0alwlra4)
+- 📧 [euconcego@gmail.com](mailto:euconcego@gmail.com)
+
+---
+
+## 📄 Licença / License
+
+MIT — livre para usar, modificar e distribuir com atribuição.  
+MIT — free to use, modify, and distribute with attribution.
