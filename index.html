@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ECJ Access Toolbox</title>
+  <title>ECJ Access Toolbox — Accessible Component Generator</title>
   <style>
     /* ===== RESET & BASE ===== */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -413,8 +413,10 @@
       font-size: 0.75rem;
       color: var(--color-text-subtle);
       display: flex;
+      gap: 1rem;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
     }
     footer a { color: var(--color-accent); text-decoration: none; }
     footer a:hover { text-decoration: underline; }
@@ -518,17 +520,22 @@
           <button class="welcome-card" data-panel="button" onclick="activatePanel('button')">
             <p class="wc-icon" aria-hidden="true">🔘</p>
             <p class="wc-name">Button</p>
-            <p class="wc-desc">Estados, ARIA, foco</p>
+            <p class="wc-desc" data-i18n="wc-btn-desc">Estados, ARIA, foco</p>
           </button>
           <button class="welcome-card" data-panel="input" onclick="activatePanel('input')">
             <p class="wc-icon" aria-hidden="true">✏️</p>
             <p class="wc-name">Input Field</p>
-            <p class="wc-desc">Label real, aria-invalid</p>
+            <p class="wc-desc" data-i18n="wc-inp-desc">Label real, aria-invalid</p>
           </button>
           <button class="welcome-card" data-panel="formgroup" onclick="activatePanel('formgroup')">
             <p class="wc-icon" aria-hidden="true">☑️</p>
             <p class="wc-name">Form Group</p>
-            <p class="wc-desc">Fieldset, legend, ARIA</p>
+            <p class="wc-desc" data-i18n="wc-fg-desc">Fieldset, legend, ARIA</p>
+          </button>
+          <button class="welcome-card" data-panel="select" onclick="activatePanel('select')">
+            <p class="wc-icon" aria-hidden="true">📋</p>
+            <p class="wc-name">Select</p>
+            <p class="wc-desc" data-i18n="wc-sel-desc">Label real, aria-invalid</p>
           </button>
         </nav>
       </div>
@@ -885,7 +892,10 @@
 <!-- Footer -->
 <footer role="contentinfo">
   <span>ECJ Access Toolbox — por <a href="https://site.zapia.com/0alwlra4" target="_blank" rel="noopener">Eu Concego Jogar</a></span>
-  <span>Componentes baseados em WCAG 2.2 + WAI-ARIA 1.2</span>
+  <span data-i18n="footer-spec">Componentes baseados em WCAG 2.2 + WAI-ARIA 1.2</span>
+  <a class="paypal-btn" href="https://www.paypal.com/donate/?business=aanderson.carvalho%40hotmail.com&currency_code=USD" target="_blank" rel="noopener" aria-label="Contribuir com o projeto via PayPal / Support this project via PayPal">
+    ☕ <span data-i18n="donate">Contribuir</span>
+  </a>
 </footer>
 
 <script>
@@ -908,7 +918,7 @@ function activatePanel(panelId) {
     b.setAttribute('aria-current', 'true');
   });
 
-  announce('Painel ' + panelId + ' ativado');
+  announce(i18n[currentLang]['panel-activated'] + ': ' + panelId);
 
   // Auto-gera ao abrir
   if (panelId === 'button') generateButton();
@@ -922,12 +932,130 @@ document.querySelectorAll('.nav-btn[data-panel]').forEach(btn => {
     const panel = btn.getAttribute('data-panel');
     const comingSoon = ['modal','toast','accordion','tabs'];
     if (comingSoon.includes(panel)) {
-      announce('Este componente estará disponível em breve.');
+      announce(i18n[currentLang]['coming-soon']);
       return;
     }
     activatePanel(panel);
   });
 });
+
+// ===== I18N =====
+const i18n = {
+  pt: {
+    'page-title'      : 'ECJ Access Toolbox — Gerador de Componentes Acessíveis',
+    'donate'          : 'Contribuir',
+    'coming-soon'     : 'Este componente estará disponível em breve.',
+    'skip-link'       : 'Pular para o conteúdo principal',
+    'nav-label'       : 'Componentes disponíveis',
+    'phase1'          : 'Fase 1 — Críticos',
+    'phase2'          : 'Fase 2 — Essenciais',
+    'soon-tag'        : 'em breve',
+    'critical-tag'    : 'crítico',
+    'welcome-title'   : 'ECJ Access Toolbox',
+    'welcome-text'    : 'Gere componentes HTML acessíveis prontos para produção. Escolha um componente ao lado, configure as opções e baixe o código — com ARIA correto, estados de foco visíveis e semântica real.',
+    'shortcuts-label' : 'Atalhos rápidos',
+    'wc-btn-desc'     : 'Estados, ARIA, foco',
+    'wc-inp-desc'     : 'Label real, aria-invalid',
+    'wc-fg-desc'      : 'Fieldset, legend, ARIA',
+    'wc-sel-desc'     : 'Label real, aria-invalid',
+    'footer-spec'     : 'Componentes baseados em WCAG 2.2 + WAI-ARIA 1.2',
+    'copy-btn'        : 'Copiar',
+    'copied'          : 'Copiado!',
+    'copied-announce' : 'Código copiado para a área de transferência.',
+    'download-empty'  : 'Gere o código primeiro antes de baixar.',
+    'panel-activated' : 'Painel ativado',
+    'tab-preview'     : 'Preview',
+    'tab-code'        : 'Código HTML',
+    'generate'        : 'Gerar',
+    'download'        : '⬇ Baixar .html',
+  },
+  en: {
+    'page-title'      : 'ECJ Access Toolbox — Accessible Component Generator',
+    'donate'          : 'Support',
+    'coming-soon'     : 'This component will be available soon.',
+    'skip-link'       : 'Skip to main content',
+    'nav-label'       : 'Available components',
+    'phase1'          : 'Phase 1 — Critical',
+    'phase2'          : 'Phase 2 — Essential',
+    'soon-tag'        : 'coming soon',
+    'critical-tag'    : 'critical',
+    'welcome-title'   : 'ECJ Access Toolbox',
+    'welcome-text'    : 'Generate production-ready accessible HTML components. Choose a component, configure the options, and download the code — with correct ARIA, visible focus states, and real semantics.',
+    'shortcuts-label' : 'Quick shortcuts',
+    'wc-btn-desc'     : 'States, ARIA, focus',
+    'wc-inp-desc'     : 'Real label, aria-invalid',
+    'wc-fg-desc'      : 'Fieldset, legend, ARIA',
+    'wc-sel-desc'     : 'Real label, aria-invalid',
+    'footer-spec'     : 'Components based on WCAG 2.2 + WAI-ARIA 1.2',
+    'copy-btn'        : 'Copy',
+    'copied'          : 'Copied!',
+    'copied-announce' : 'Code copied to clipboard.',
+    'download-empty'  : 'Generate the code first before downloading.',
+    'panel-activated' : 'Panel activated',
+    'tab-preview'     : 'Preview',
+    'tab-code'        : 'HTML Code',
+    'generate'        : 'Generate',
+    'download'        : '⬇ Download .html',
+  }
+};
+
+let currentLang = 'pt';
+
+function setLang(lang) {
+  currentLang = lang;
+  document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en';
+  document.title = i18n[lang]['page-title'];
+
+  // Toggle botões
+  document.getElementById('lang-pt').classList.toggle('active', lang === 'pt');
+  document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+  document.getElementById('lang-pt').setAttribute('aria-pressed', lang === 'pt');
+  document.getElementById('lang-en').setAttribute('aria-pressed', lang === 'en');
+
+  // Elementos data-i18n
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (i18n[lang][key]) el.textContent = i18n[lang][key];
+  });
+
+  // Skip link
+  const skip = document.querySelector('.skip-link');
+  if (skip) skip.textContent = i18n[lang]['skip-link'];
+
+  // Sidebar labels
+  const ph1 = document.getElementById('nav-label-phase1');
+  const ph2 = document.getElementById('nav-label-phase2');
+  if (ph1) ph1.textContent = i18n[lang]['phase1'];
+  if (ph2) ph2.textContent = i18n[lang]['phase2'];
+
+  // nav tags
+  document.querySelectorAll('.nav-tag.hot').forEach(t => t.textContent = i18n[lang]['critical-tag']);
+  document.querySelectorAll('.nav-tag:not(.hot)').forEach(t => t.textContent = i18n[lang]['soon-tag']);
+
+  // Welcome panel
+  const wt = document.querySelector('.welcome-title');
+  const wx = document.querySelector('.welcome-text');
+  const wn = document.querySelector('.welcome-cards');
+  if (wt) wt.textContent = i18n[lang]['welcome-title'];
+  if (wx) wx.textContent = i18n[lang]['welcome-text'];
+  if (wn) wn.setAttribute('aria-label', i18n[lang]['shortcuts-label']);
+
+  // Tab buttons
+  document.querySelectorAll('.tab-btn').forEach(t => {
+    const tgt = t.getAttribute('data-target') || '';
+    if (tgt.startsWith('tab-preview')) t.textContent = i18n[lang]['tab-preview'];
+    if (tgt.startsWith('tab-code'))    t.textContent = i18n[lang]['tab-code'];
+  });
+
+  // Generate + Download buttons
+  document.querySelectorAll('.btn-generate').forEach(b => {
+    if (!b.hasAttribute('onclick') || b.getAttribute('onclick').startsWith('addFg') || b.getAttribute('onclick').startsWith('addSel')) return;
+    b.textContent = i18n[lang]['generate'];
+  });
+  document.querySelectorAll('.btn-download').forEach(b => { b.textContent = i18n[lang]['download']; });
+
+  announce(lang === 'pt' ? 'Idioma alterado para Português.' : 'Language changed to English.');
+}
 
 // ===== TABS =====
 document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -955,11 +1083,11 @@ function announce(msg) {
 function copyCode(id, btn) {
   const text = document.getElementById(id).value;
   navigator.clipboard.writeText(text).then(() => {
-    btn.textContent = 'Copiado!';
+    btn.textContent = i18n[currentLang]['copied'];
     btn.classList.add('copied');
-    announce('Código copiado para a área de transferência.');
+    announce(i18n[currentLang]['copied-announce']);
     setTimeout(() => {
-      btn.textContent = 'Copiar';
+      btn.textContent = i18n[currentLang]['copy-btn'];
       btn.classList.remove('copied');
     }, 2000);
   });
@@ -968,7 +1096,7 @@ function copyCode(id, btn) {
 // ===== DOWNLOAD =====
 function downloadCode(id, filename) {
   const code = document.getElementById(id).value;
-  if (!code.trim()) { announce('Gere o código primeiro antes de baixar.'); return; }
+  if (!code.trim()) { announce(i18n[currentLang]['download-empty']); return; }
   const blob = new Blob([code], { type: 'text/html' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
