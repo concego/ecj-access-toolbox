@@ -639,6 +639,26 @@
       Progress Bar
       <span class="nav-tag hot">crítico</span>
     </button>
+    <button class="nav-btn" role="menuitem" data-panel="contrast" aria-current="false">
+      <span class="nav-icon" aria-hidden="true">🎨</span>
+      Color Contrast
+      <span class="nav-tag hot">crítico</span>
+    </button>
+    <button class="nav-btn" role="menuitem" data-panel="alttext" aria-current="false">
+      <span class="nav-icon" aria-hidden="true">🖼️</span>
+      Image Alt Text
+      <span class="nav-tag hot">crítico</span>
+    </button>
+    <button class="nav-btn" role="menuitem" data-panel="link" aria-current="false">
+      <span class="nav-icon" aria-hidden="true">🔗</span>
+      Accessible Link
+      <span class="nav-tag hot">crítico</span>
+    </button>
+    <button class="nav-btn" role="menuitem" data-panel="skiplink" aria-current="false">
+      <span class="nav-icon" aria-hidden="true">⏭️</span>
+      Skip Link
+      <span class="nav-tag hot">crítico</span>
+    </button>
     <p class="sidebar-label" id="nav-label-phase2">Fase 2 — Essenciais</p>
     <button class="nav-btn" role="menuitem" data-panel="modal" aria-current="false">
       <span class="nav-icon" aria-hidden="true">🗔</span>
@@ -698,6 +718,26 @@
             <p class="wc-icon" aria-hidden="true">📊</p>
             <p class="wc-name">Progress Bar</p>
             <p class="wc-desc" data-i18n="wc-prg-desc">Determinada, indeterminada, etapas</p>
+          </button>
+          <button class="welcome-card" data-panel="contrast" onclick="activatePanel('contrast')">
+            <p class="wc-icon" aria-hidden="true">🎨</p>
+            <p class="wc-name">Color Contrast</p>
+            <p class="wc-desc" data-i18n="wc-con-desc">Ratio WCAG AA/AAA em tempo real</p>
+          </button>
+          <button class="welcome-card" data-panel="alttext" onclick="activatePanel('alttext')">
+            <p class="wc-icon" aria-hidden="true">🖼️</p>
+            <p class="wc-name">Image Alt Text</p>
+            <p class="wc-desc" data-i18n="wc-alt-desc">alt, role presentation, figcaption</p>
+          </button>
+          <button class="welcome-card" data-panel="link" onclick="activatePanel('link')">
+            <p class="wc-icon" aria-hidden="true">🔗</p>
+            <p class="wc-name">Accessible Link</p>
+            <p class="wc-desc" data-i18n="wc-lnk-desc">Links descritivos, target, aria-label</p>
+          </button>
+          <button class="welcome-card" data-panel="skiplink" onclick="activatePanel('skiplink')">
+            <p class="wc-icon" aria-hidden="true">⏭️</p>
+            <p class="wc-name">Skip Link</p>
+            <p class="wc-desc" data-i18n="wc-skp-desc">Navegação por teclado / leitor de tela</p>
           </button>
         </nav>
       </div>
@@ -1150,6 +1190,336 @@
       </div>
     </div>
 
+
+    <!-- PANEL: COLOR CONTRAST -->
+    <div class="panel" id="panel-contrast" role="region" aria-label="Verificador de Contraste de Cor">
+      <div class="panel-header">
+        <h1 class="panel-title">🎨 Color Contrast</h1>
+        <p class="panel-desc">Calcula o ratio de contraste entre texto e fundo. Verifica conformidade WCAG 2.2 AA e AAA. <strong>#1 erro mais comum</strong> — 83.9% dos sites falham (WebAIM 2026).</p>
+      </div>
+      <div class="panel-body">
+        <div class="config-pane" role="form" aria-label="Configurações do Contraste">
+          <div class="field-group">
+            <label class="field-label" for="con-fg">Cor do texto (foreground)</label>
+            <div style="display:flex;gap:0.5rem;align-items:center;">
+              <input type="color" id="con-fg-picker" value="#ffffff" oninput="syncColorInput('con-fg-picker','con-fg')" style="width:44px;height:36px;border:1px solid var(--color-border);border-radius:6px;background:var(--color-surface2);cursor:pointer;padding:2px;" aria-label="Seletor de cor do texto" />
+              <input class="field-input" type="text" id="con-fg" value="#ffffff" oninput="syncColorPicker('con-fg','con-fg-picker')" style="font-family:var(--mono);" maxlength="9" autocomplete="off" />
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="con-bg">Cor do fundo (background)</label>
+            <div style="display:flex;gap:0.5rem;align-items:center;">
+              <input type="color" id="con-bg-picker" value="#1a1d27" oninput="syncColorInput('con-bg-picker','con-bg')" style="width:44px;height:36px;border:1px solid var(--color-border);border-radius:6px;background:var(--color-surface2);cursor:pointer;padding:2px;" aria-label="Seletor de cor do fundo" />
+              <input class="field-input" type="text" id="con-bg" value="#1a1d27" oninput="syncColorPicker('con-bg','con-bg-picker')" style="font-family:var(--mono);" maxlength="9" autocomplete="off" />
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="con-size">Tamanho do texto</label>
+            <select class="field-select" id="con-size" onchange="generateContrast()">
+              <option value="normal">Normal (abaixo de 18pt / 14pt bold)</option>
+              <option value="large">Grande (18pt+ ou 14pt+ bold)</option>
+            </select>
+            <span class="field-hint">Textos grandes têm requisito de contraste menor (3:1 AA).</span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="con-preview-text">Texto de preview</label>
+            <input class="field-input" type="text" id="con-preview-text" value="O rato roeu a roupa do rei de Roma." oninput="generateContrast()" autocomplete="off" />
+          </div>
+        </div>
+        <div class="output-pane" style="display:flex;flex-direction:column;gap:0;">
+          <div style="padding:1.5rem;display:flex;flex-direction:column;gap:1rem;flex:1;overflow-y:auto;">
+            <!-- Live preview box -->
+            <div id="con-preview-box" style="border-radius:8px;padding:1.5rem;transition:background 0.2s;">
+              <p id="con-preview-label" style="font-size:1rem;margin:0;transition:color 0.2s;">O rato roeu a roupa do rei de Roma.</p>
+            </div>
+            <!-- Ratio badge -->
+            <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+              <div style="background:var(--color-surface2);border:1px solid var(--color-border);border-radius:8px;padding:0.75rem 1.25rem;text-align:center;min-width:120px;">
+                <p style="font-size:0.7rem;color:var(--color-text-subtle);text-transform:uppercase;letter-spacing:0.5px;margin:0 0 0.25rem;">Ratio</p>
+                <p id="con-ratio" style="font-size:1.8rem;font-weight:800;color:var(--color-text);font-family:var(--mono);margin:0;">—</p>
+              </div>
+              <div id="con-results" style="display:flex;flex-direction:column;gap:0.4rem;flex:1;">
+                <!-- Badges gerados por JS -->
+              </div>
+            </div>
+            <!-- Swatches -->
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.25rem;">
+              <div id="con-swatch-fg" style="width:40px;height:40px;border-radius:6px;border:1px solid var(--color-border);"></div>
+              <div id="con-swatch-bg" style="width:40px;height:40px;border-radius:6px;border:1px solid var(--color-border);"></div>
+              <p id="con-hex-display" style="font-size:0.8rem;color:var(--color-text-muted);align-self:center;font-family:var(--mono);"></p>
+            </div>
+            <hr class="section-divider" />
+            <!-- Code output -->
+            <div class="code-area" style="flex:none;">
+              <textarea class="code-block" id="code-contrast" readonly aria-label="CSS de contraste gerado" spellcheck="false" style="min-height:80px;"></textarea>
+              <button class="copy-btn" onclick="copyCode('code-contrast', this)" aria-label="Copiar CSS gerado">Copiar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL: IMAGE ALT TEXT -->
+    <div class="panel" id="panel-alttext" role="region" aria-label="Gerador de Alt Text para Imagens">
+      <div class="panel-header">
+        <h1 class="panel-title">🖼️ Image Alt Text</h1>
+        <p class="panel-desc">Gera o HTML correto para imagens com alt text, figcaption e imagens decorativas. <strong>#2 erro mais comum</strong> — 53.1% das imagens sem alt (WebAIM 2026).</p>
+      </div>
+      <div class="panel-body">
+        <div class="config-pane" role="form" aria-label="Configurações do Alt Text">
+          <div class="field-group">
+            <label class="field-label" for="alt-type">Tipo de imagem</label>
+            <select class="field-select" id="alt-type" onchange="updateAltFields(); generateAlt();">
+              <option value="informative">Informativa (transmite conteúdo)</option>
+              <option value="decorative">Decorativa (apenas visual)</option>
+              <option value="functional">Funcional (link ou botão)</option>
+              <option value="figure">Figura com legenda (figcaption)</option>
+              <option value="complex">Complexa (gráfico, diagrama)</option>
+            </select>
+          </div>
+          <div id="alt-fields-informative">
+            <div class="field-group" style="margin-top:0.75rem;">
+              <label class="field-label" for="alt-text">Texto alternativo (alt=)</label>
+              <input class="field-input" type="text" id="alt-text" value="Cachorro golden retriever correndo em um parque" autocomplete="off" oninput="generateAlt()" />
+              <span class="field-hint">Descreva o conteúdo e função — não "imagem de…".</span>
+            </div>
+            <div class="field-group" style="margin-top:0.75rem;">
+              <label class="field-label" for="alt-src">src da imagem</label>
+              <input class="field-input" type="text" id="alt-src" value="cachorro-parque.jpg" autocomplete="off" oninput="generateAlt()" />
+            </div>
+          </div>
+          <div id="alt-fields-decorative" style="display:none;">
+            <div class="field-group" style="margin-top:0.75rem;">
+              <label class="field-label" for="alt-dec-src">src da imagem</label>
+              <input class="field-input" type="text" id="alt-dec-src" value="divider-wave.svg" autocomplete="off" oninput="generateAlt()" />
+            </div>
+            <p class="field-hint" style="margin-top:0.4rem;">Imagem decorativa recebe <code>alt=""</code> e <code>role="presentation"</code> — leitores de tela a ignoram.</p>
+          </div>
+          <div id="alt-fields-functional" style="display:none;">
+            <div class="field-group" style="margin-top:0.75rem;">
+              <label class="field-label" for="alt-func-text">O que o link/botão faz?</label>
+              <input class="field-input" type="text" id="alt-func-text" value="Acessar página inicial" autocomplete="off" oninput="generateAlt()" />
+              <span class="field-hint">Descreva a ação, não a aparência.</span>
+            </div>
+            <div class="field-group" style="margin-top:0.75rem;">
+              <label class="field-label" for="alt-func-src">src da imagem</label>
+              <input class="field-input" type="text" id="alt-func-src" value="logo.png" autocomplete="off" oninput="generateAlt()" />
+            </div>
+            <div class="field-group" style="margin-top:0.75rem;">
+              <label class="field-label" for="alt-func-href">href do link</label>
+              <input class="field-input" type="text" id="alt-func-href" value="/" autocomplete="off" oninput="generateAlt()" />
+            </div>
+          </div>
+          <div id="alt-fields-figure" style="display:none;">
+            <div class="field-group" style="margin-top:0.75rem;">
+              <label class="field-label" for="alt-fig-alt">Alt text (resumo)</label>
+              <input class="field-input" type="text" id="alt-fig-alt" value="Gráfico de barras mostrando crescimento de 40% em 2024" autocomplete="off" oninput="generateAlt()" />
+            </div>
+            <div class="field-group" style="margin-top:0.75rem;">
+              <label class="field-label" for="alt-fig-caption">Legenda (figcaption)</label>
+              <input class="field-input" type="text" id="alt-fig-caption" value="Figura 1: Crescimento anual de vendas entre 2020 e 2024." autocomplete="off" oninput="generateAlt()" />
+            </div>
+            <div class="field-group" style="margin-top:0.75rem;">
+              <label class="field-label" for="alt-fig-src">src da imagem</label>
+              <input class="field-input" type="text" id="alt-fig-src" value="grafico-vendas.png" autocomplete="off" oninput="generateAlt()" />
+            </div>
+          </div>
+          <div id="alt-fields-complex" style="display:none;">
+            <div class="field-group" style="margin-top:0.75rem;">
+              <label class="field-label" for="alt-cmp-alt">Alt text (resumo curto)</label>
+              <input class="field-input" type="text" id="alt-cmp-alt" value="Diagrama de fluxo do processo de cadastro" autocomplete="off" oninput="generateAlt()" />
+            </div>
+            <div class="field-group" style="margin-top:0.75rem;">
+              <label class="field-label" for="alt-cmp-longdesc">Descrição longa (aria-describedby)</label>
+              <textarea class="field-input" id="alt-cmp-longdesc" rows="3" oninput="generateAlt()" style="resize:vertical;">O processo começa com o preenchimento do formulário, passa pela validação de e-mail e termina com a confirmação via SMS.</textarea>
+              <span class="field-hint">Colocada em um parágrafo oculto visualmente mas acessível por leitores de tela.</span>
+            </div>
+            <div class="field-group" style="margin-top:0.75rem;">
+              <label class="field-label" for="alt-cmp-src">src da imagem</label>
+              <input class="field-input" type="text" id="alt-cmp-src" value="fluxo-cadastro.png" autocomplete="off" oninput="generateAlt()" />
+            </div>
+          </div>
+        </div>
+        <div class="output-pane">
+          <div class="tabs-bar" role="tablist" aria-label="Visualização do Alt Text">
+            <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-preview-alt" id="tab-preview-alt-btn" data-target="tab-preview-alt">Preview</button>
+            <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-code-alt" id="tab-code-alt-btn" data-target="tab-code-alt">Código HTML</button>
+          </div>
+          <div class="tab-content active" id="tab-preview-alt" role="tabpanel" aria-labelledby="tab-preview-alt-btn">
+            <div class="preview-area">
+              <div class="preview-inner" id="preview-alt"></div>
+            </div>
+          </div>
+          <div class="tab-content" id="tab-code-alt" role="tabpanel" aria-labelledby="tab-code-alt-btn">
+            <div class="code-area">
+              <textarea class="code-block" id="code-alt" readonly aria-label="Código HTML gerado para Alt Text" spellcheck="false"></textarea>
+              <button class="copy-btn" onclick="copyCode('code-alt', this)" aria-label="Copiar código HTML do Alt Text">Copiar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="generate-bar">
+        <button class="btn-generate" onclick="generateAlt()" aria-label="Gerar código de Alt Text">Gerar</button>
+        <button class="btn-download" onclick="downloadCode('code-alt', 'ecj-alttext.html')" aria-label="Baixar código HTML do Alt Text">⬇ Baixar .html</button>
+        <span class="generate-hint" aria-live="polite">HTML puro — sem dependências</span>
+      </div>
+    </div>
+
+    <!-- PANEL: ACCESSIBLE LINK -->
+    <div class="panel" id="panel-link" role="region" aria-label="Gerador de Link Acessível">
+      <div class="panel-header">
+        <h1 class="panel-title">🔗 Accessible Link</h1>
+        <p class="panel-desc">Gera links com texto descritivo, aria-label quando necessário e atributos corretos para links externos. <strong>#3 erro mais comum</strong> — 46.3% dos links sem descrição (WebAIM 2026).</p>
+      </div>
+      <div class="panel-body">
+        <div class="config-pane" role="form" aria-label="Configurações do Link">
+          <div class="field-group">
+            <label class="field-label" for="lnk-type">Tipo de link</label>
+            <select class="field-select" id="lnk-type" onchange="updateLinkFields(); generateLink();">
+              <option value="text">Texto descritivo</option>
+              <option value="ambiguous">Texto ambíguo (clique aqui, saiba mais)</option>
+              <option value="external">Link externo (abre em nova aba)</option>
+              <option value="download">Link de download</option>
+              <option value="icon">Link com ícone (sem texto visível)</option>
+              <option value="email">Link de e-mail (mailto:)</option>
+            </select>
+          </div>
+          <div class="field-group" id="lnk-field-text">
+            <label class="field-label" for="lnk-text">Texto do link</label>
+            <input class="field-input" type="text" id="lnk-text" value="Ver relatório anual de 2024" autocomplete="off" oninput="generateLink()" />
+            <span class="field-hint">Deve fazer sentido fora de contexto — leitores de tela listam links isoladamente.</span>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="lnk-href">href</label>
+            <input class="field-input" type="text" id="lnk-href" value="https://example.com/relatorio-2024.pdf" autocomplete="off" oninput="generateLink()" />
+          </div>
+          <div class="field-group" id="lnk-field-arialabel" style="display:none;">
+            <label class="field-label" for="lnk-arialabel">aria-label (descrição completa)</label>
+            <input class="field-input" type="text" id="lnk-arialabel" value="" autocomplete="off" oninput="generateLink()" />
+            <span class="field-hint">Substitui o texto visível para leitores de tela.</span>
+          </div>
+          <div class="field-group" id="lnk-field-download" style="display:none;">
+            <label class="field-label" for="lnk-filename">Nome do arquivo (download=)</label>
+            <input class="field-input" type="text" id="lnk-filename" value="relatorio-2024.pdf" autocomplete="off" oninput="generateLink()" />
+          </div>
+          <div class="field-group" id="lnk-field-filetype" style="display:none;">
+            <label class="field-label" for="lnk-filetype">Tipo e tamanho (informar no texto)</label>
+            <input class="field-input" type="text" id="lnk-filetype" value="PDF, 2 MB" autocomplete="off" oninput="generateLink()" />
+            <span class="field-hint">Boas práticas: informar formato e tamanho antes do download.</span>
+          </div>
+          <hr class="section-divider" />
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" id="lnk-includeCSS" checked onchange="generateLink()" />
+              Incluir CSS com foco visível
+            </label>
+          </div>
+        </div>
+        <div class="output-pane">
+          <div class="tabs-bar" role="tablist" aria-label="Visualização do Link">
+            <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-preview-lnk" id="tab-preview-lnk-btn" data-target="tab-preview-lnk">Preview</button>
+            <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-code-lnk" id="tab-code-lnk-btn" data-target="tab-code-lnk">Código HTML</button>
+          </div>
+          <div class="tab-content active" id="tab-preview-lnk" role="tabpanel" aria-labelledby="tab-preview-lnk-btn">
+            <div class="preview-area">
+              <div class="preview-inner" id="preview-link"></div>
+            </div>
+          </div>
+          <div class="tab-content" id="tab-code-lnk" role="tabpanel" aria-labelledby="tab-code-lnk-btn">
+            <div class="code-area">
+              <textarea class="code-block" id="code-link" readonly aria-label="Código HTML gerado para Link" spellcheck="false"></textarea>
+              <button class="copy-btn" onclick="copyCode('code-link', this)" aria-label="Copiar código HTML do Link">Copiar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="generate-bar">
+        <button class="btn-generate" onclick="generateLink()" aria-label="Gerar código de Link Acessível">Gerar</button>
+        <button class="btn-download" onclick="downloadCode('code-link', 'ecj-link.html')" aria-label="Baixar código HTML do Link">⬇ Baixar .html</button>
+        <span class="generate-hint" aria-live="polite">HTML puro — sem dependências</span>
+      </div>
+    </div>
+
+    <!-- PANEL: SKIP LINK -->
+    <div class="panel" id="panel-skiplink" role="region" aria-label="Gerador de Skip Link">
+      <div class="panel-header">
+        <h1 class="panel-title">⏭️ Skip Link</h1>
+        <p class="panel-desc">Gera skip links e live regions — os dois padrões mais esquecidos que travam usuários de teclado e leitores de tela em todos os sites.</p>
+      </div>
+      <div class="panel-body">
+        <div class="config-pane" role="form" aria-label="Configurações do Skip Link">
+          <div class="field-group">
+            <label class="field-label" for="skp-type">O que gerar</label>
+            <select class="field-select" id="skp-type" onchange="generateSkipLink()">
+              <option value="skiplink">Skip Link (pular para conteúdo)</option>
+              <option value="liveregion">Live Region (aria-live)</option>
+              <option value="both">Skip Link + Live Region</option>
+            </select>
+          </div>
+          <div id="skp-fields-skiplink">
+            <div class="field-group" style="margin-top:0.75rem;">
+              <label class="field-label" for="skp-text">Texto do skip link</label>
+              <input class="field-input" type="text" id="skp-text" value="Pular para o conteúdo principal" autocomplete="off" oninput="generateSkipLink()" />
+            </div>
+            <div class="field-group" style="margin-top:0.75rem;">
+              <label class="field-label" for="skp-target">ID do destino</label>
+              <input class="field-input" type="text" id="skp-target" value="main-content" autocomplete="off" oninput="generateSkipLink()" />
+              <span class="field-hint">O elemento destino precisa ter tabindex="-1" para receber foco.</span>
+            </div>
+          </div>
+          <div id="skp-fields-liveregion" style="display:none;">
+            <div class="field-group" style="margin-top:0.75rem;">
+              <label class="field-label" for="skp-live-type">Tipo de aria-live</label>
+              <select class="field-select" id="skp-live-type" onchange="generateSkipLink()">
+                <option value="polite">polite — aguarda silêncio para anunciar</option>
+                <option value="assertive">assertive — interrompe (use só para erros críticos)</option>
+              </select>
+            </div>
+            <div class="field-group" style="margin-top:0.75rem;">
+              <label class="field-label" for="skp-live-atomic">aria-atomic</label>
+              <select class="field-select" id="skp-live-atomic" onchange="generateSkipLink()">
+                <option value="true">true — lê a região inteira ao atualizar</option>
+                <option value="false">false — lê apenas a parte alterada</option>
+              </select>
+            </div>
+            <div class="field-group" style="margin-top:0.75rem;">
+              <label class="field-label" for="skp-live-id">ID da live region</label>
+              <input class="field-input" type="text" id="skp-live-id" value="live-region" autocomplete="off" oninput="generateSkipLink()" />
+            </div>
+          </div>
+          <hr class="section-divider" />
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" id="skp-includeCSS" checked onchange="generateSkipLink()" />
+              Incluir CSS (visível apenas no foco)
+            </label>
+          </div>
+        </div>
+        <div class="output-pane">
+          <div class="tabs-bar" role="tablist" aria-label="Visualização do Skip Link">
+            <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-preview-skp" id="tab-preview-skp-btn" data-target="tab-preview-skp">Preview</button>
+            <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-code-skp" id="tab-code-skp-btn" data-target="tab-code-skp">Código HTML</button>
+          </div>
+          <div class="tab-content active" id="tab-preview-skp" role="tabpanel" aria-labelledby="tab-preview-skp-btn">
+            <div class="preview-area">
+              <div class="preview-inner" id="preview-skiplink"></div>
+            </div>
+          </div>
+          <div class="tab-content" id="tab-code-skp" role="tabpanel" aria-labelledby="tab-code-skp-btn">
+            <div class="code-area">
+              <textarea class="code-block" id="code-skiplink" readonly aria-label="Código HTML gerado para Skip Link" spellcheck="false"></textarea>
+              <button class="copy-btn" onclick="copyCode('code-skiplink', this)" aria-label="Copiar código HTML do Skip Link">Copiar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="generate-bar">
+        <button class="btn-generate" onclick="generateSkipLink()" aria-label="Gerar código de Skip Link">Gerar</button>
+        <button class="btn-download" onclick="downloadCode('code-skiplink', 'ecj-skiplink.html')" aria-label="Baixar código HTML do Skip Link">⬇ Baixar .html</button>
+        <span class="generate-hint" aria-live="polite">HTML puro — sem dependências</span>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -1192,18 +1562,7 @@ function activatePanel(panelId) {
   if (panelId === 'progress') generateProgress();
 }
 
-document.querySelectorAll('.nav-btn[data-panel]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const panel = btn.getAttribute('data-panel');
-    const comingSoon = ['modal','toast','accordion','tabs'];
-    // progress is now live — remove from coming-soon if ever listed
-    if (comingSoon.includes(panel)) {
-      announce(i18n[currentLang]['coming-soon']);
-      return;
-    }
-    activatePanel(panel);
-  });
-});
+// Nav click handling moved to bottom of script (after all generators are defined)
 
 // ===== I18N =====
 const i18n = {
@@ -1225,6 +1584,10 @@ const i18n = {
     'wc-fg-desc'      : 'Fieldset, legend, ARIA',
     'wc-sel-desc'     : 'Label real, aria-invalid',
     'wc-prg-desc'     : 'Determinada, indeterminada, etapas',
+    'wc-con-desc'     : 'Ratio WCAG AA/AAA em tempo real',
+    'wc-alt-desc'     : 'alt, role presentation, figcaption',
+    'wc-lnk-desc'     : 'Links descritivos, target, aria-label',
+    'wc-skp-desc'     : 'Navegação por teclado / leitor de tela',
     'footer-spec'     : 'Componentes baseados em WCAG 2.2 + WAI-ARIA 1.2',
     'copy-btn'        : 'Copiar',
     'copied'          : 'Copiado!',
@@ -1254,6 +1617,10 @@ const i18n = {
     'wc-fg-desc'      : 'Fieldset, legend, ARIA',
     'wc-sel-desc'     : 'Real label, aria-invalid',
     'wc-prg-desc'     : 'Determinate, indeterminate, steps',
+    'wc-con-desc'     : 'WCAG AA/AAA ratio in real time',
+    'wc-alt-desc'     : 'alt, role presentation, figcaption',
+    'wc-lnk-desc'     : 'Descriptive links, target, aria-label',
+    'wc-skp-desc'     : 'Keyboard / screen reader navigation',
     'footer-spec'     : 'Components based on WCAG 2.2 + WAI-ARIA 1.2',
     'copy-btn'        : 'Copy',
     'copied'          : 'Copied!',
@@ -2148,6 +2515,401 @@ ${stepsHtml}  </ol>
 ['prg-show-text','prg-live','prg-steps-total','prg-steps-current'].forEach(id => {
   const el = document.getElementById(id);
   if (el) el.addEventListener('change', generateProgress);
+});
+
+// ===== GENERATOR: COLOR CONTRAST =====
+
+function hexToRgb(hex) {
+  hex = hex.replace(/^#/, '');
+  if (hex.length === 3) hex = hex.split('').map(c => c+c).join('');
+  if (hex.length !== 6) return null;
+  const r = parseInt(hex.slice(0,2),16);
+  const g = parseInt(hex.slice(2,4),16);
+  const b = parseInt(hex.slice(4,6),16);
+  if (isNaN(r)||isNaN(g)||isNaN(b)) return null;
+  return {r,g,b};
+}
+
+function linearize(c) {
+  c = c/255;
+  return c <= 0.04045 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4);
+}
+
+function relativeLuminance(hex) {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return null;
+  const r = linearize(rgb.r);
+  const g = linearize(rgb.g);
+  const b = linearize(rgb.b);
+  return 0.2126*r + 0.7152*g + 0.0722*b;
+}
+
+function contrastRatio(hex1, hex2) {
+  const l1 = relativeLuminance(hex1);
+  const l2 = relativeLuminance(hex2);
+  if (l1 === null || l2 === null) return null;
+  const lighter = Math.max(l1, l2);
+  const darker  = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function isValidHex(hex) {
+  return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(hex);
+}
+
+function syncColorInput(pickerId, textId) {
+  document.getElementById(textId).value = document.getElementById(pickerId).value;
+  generateContrast();
+}
+
+function syncColorPicker(textId, pickerId) {
+  const val = document.getElementById(textId).value.trim();
+  if (isValidHex(val)) document.getElementById(pickerId).value = val.length === 4 ? '#' + val.slice(1).split('').map(c=>c+c).join('') : val;
+  generateContrast();
+}
+
+function generateContrast() {
+  const fgRaw = document.getElementById('con-fg').value.trim();
+  const bgRaw = document.getElementById('con-bg').value.trim();
+  const size  = document.getElementById('con-size').value;
+  const txt   = document.getElementById('con-preview-text').value || 'Texto de exemplo';
+
+  const fg = fgRaw.startsWith('#') ? fgRaw : '#'+fgRaw;
+  const bg = bgRaw.startsWith('#') ? bgRaw : '#'+bgRaw;
+
+  const previewBox   = document.getElementById('con-preview-box');
+  const previewLabel = document.getElementById('con-preview-label');
+  const ratioEl      = document.getElementById('con-ratio');
+  const resultsEl    = document.getElementById('con-results');
+  const swatchFg     = document.getElementById('con-swatch-fg');
+  const swatchBg     = document.getElementById('con-swatch-bg');
+  const hexDisplay   = document.getElementById('con-hex-display');
+  const codeEl       = document.getElementById('code-contrast');
+
+  if (!isValidHex(fg) || !isValidHex(bg)) {
+    ratioEl.textContent = '—';
+    resultsEl.innerHTML = '<p style="color:var(--color-text-muted);font-size:0.85rem;">Digite cores hexadecimais válidas (#fff ou #ffffff)</p>';
+    return;
+  }
+
+  previewBox.style.background = bg;
+  previewLabel.style.color = fg;
+  previewLabel.textContent = txt;
+
+  swatchFg.style.background = fg;
+  swatchBg.style.background = bg;
+  hexDisplay.textContent = fg + ' sobre ' + bg;
+
+  const ratio = contrastRatio(fg, bg);
+  if (!ratio) return;
+  const rounded = Math.round(ratio * 100) / 100;
+  ratioEl.textContent = rounded.toFixed(2) + ':1';
+
+  // Thresholds
+  const aaMin   = size === 'large' ? 3.0 : 4.5;
+  const aaaMin  = size === 'large' ? 4.5 : 7.0;
+  const passAA  = ratio >= aaMin;
+  const passAAA = ratio >= aaaMin;
+
+  function badge(pass, label) {
+    const color = pass ? '#22c55e' : '#f87171';
+    const icon  = pass ? '✓' : '✗';
+    return `<span style="display:inline-flex;align-items:center;gap:0.35rem;background:${pass?'rgba(34,197,94,0.12)':'rgba(248,113,113,0.12)'};border:1px solid ${color};border-radius:99px;padding:0.25rem 0.75rem;font-size:0.82rem;font-weight:700;color:${color};">${icon} ${label}</span>`;
+  }
+
+  resultsEl.innerHTML = badge(passAA, 'WCAG AA') + ' ' + badge(passAAA, 'WCAG AAA');
+
+  ratioEl.style.color = passAA ? '#22c55e' : ratio >= 3 ? '#fbbf24' : '#f87171';
+
+  codeEl.value = `/* Contraste verificado: ${rounded.toFixed(2)}:1 — WCAG AA ${passAA?'✓ PASSA':'✗ FALHA'} | AAA ${passAAA?'✓ PASSA':'✗ FALHA'} */
+/* Texto ${size === 'large' ? 'grande (18pt+ ou 14pt+ bold)' : 'normal'} */
+.elemento {
+  color: ${fg};
+  background-color: ${bg};
+}`;
+  announce(`Contraste calculado: ${rounded.toFixed(2)}:1. AA ${passAA?'passa':'falha'}. AAA ${passAAA?'passa':'falha'}.`);
+}
+
+// Init contrast on load
+document.addEventListener('DOMContentLoaded', () => { generateContrast(); });
+
+// ===== GENERATOR: IMAGE ALT TEXT =====
+
+function updateAltFields() {
+  const type = document.getElementById('alt-type').value;
+  ['informative','decorative','functional','figure','complex'].forEach(t => {
+    document.getElementById('alt-fields-' + t).style.display = t === type ? '' : 'none';
+  });
+}
+
+function generateAlt() {
+  const type = document.getElementById('alt-type').value;
+  let html = '', preview = '';
+
+  const previewCSS = `<style>
+  .ecj-img-placeholder { display:flex;align-items:center;justify-content:center;background:#e2e8f0;border-radius:8px;width:200px;height:120px;font-size:0.75rem;color:#64748b;border:2px dashed #cbd5e1;margin-bottom:0.5rem; }
+  .ecj-fig { display:inline-block; } .ecj-figcaption { font-size:0.82rem;color:#64748b;margin-top:0.4rem;font-style:italic; }
+  .sr-only { position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0; }
+  </style>`;
+
+  if (type === 'informative') {
+    const alt = (document.getElementById('alt-text').value || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const src = document.getElementById('alt-src').value || 'imagem.jpg';
+    html = `<!-- Imagem informativa: alt descreve o conteúdo, não "imagem de..." -->
+<img src="${src}" alt="${alt}" />`;
+    preview = `${previewCSS}<div class="ecj-img-placeholder" role="img" aria-label="${alt}">🖼 alt="${alt}"</div>`;
+
+  } else if (type === 'decorative') {
+    const src = document.getElementById('alt-dec-src').value || 'decoracao.svg';
+    html = `<!-- Imagem decorativa: alt vazio + role="presentation" — leitores de tela ignoram -->
+<img src="${src}" alt="" role="presentation" />`;
+    preview = `${previewCSS}<div class="ecj-img-placeholder">🙈 Decorativa — ignorada pelo leitor de tela</div><p style="font-size:0.8rem;color:#64748b;">alt="" + role="presentation"</p>`;
+
+  } else if (type === 'functional') {
+    const func = (document.getElementById('alt-func-text').value || 'Ir para a página inicial').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const src  = document.getElementById('alt-func-src').value || 'logo.png';
+    const href = document.getElementById('alt-func-href').value || '#';
+    html = `<!-- Imagem funcional (dentro de link/botão): alt descreve a AÇÃO -->
+<a href="${href}">
+  <img src="${src}" alt="${func}" />
+</a>`;
+    preview = `${previewCSS}<div class="ecj-img-placeholder">🔗 alt="${func}"</div><p style="font-size:0.8rem;color:#64748b;">Link: ${href}</p>`;
+
+  } else if (type === 'figure') {
+    const alt     = (document.getElementById('alt-fig-alt').value || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const caption = (document.getElementById('alt-fig-caption').value || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const src     = document.getElementById('alt-fig-src').value || 'grafico.png';
+    html = `<!-- Figura com legenda: figcaption visível + alt complementar -->
+<figure>
+  <img src="${src}" alt="${alt}" />
+  <figcaption>${caption}</figcaption>
+</figure>`;
+    preview = `${previewCSS}<figure class="ecj-fig"><div class="ecj-img-placeholder">📊 ${alt}</div><figcaption class="ecj-figcaption">${caption}</figcaption></figure>`;
+
+  } else if (type === 'complex') {
+    const alt      = (document.getElementById('alt-cmp-alt').value || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const longdesc = (document.getElementById('alt-cmp-longdesc').value || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const src      = document.getElementById('alt-cmp-src').value || 'diagrama.png';
+    const descId   = 'img-desc-' + Math.random().toString(36).slice(2,7);
+    html = `<!-- Imagem complexa: alt curto + descrição longa em elemento sr-only -->
+<img src="${src}" alt="${alt}" aria-describedby="${descId}" />
+<p id="${descId}" class="sr-only">${longdesc}</p>
+
+<style>
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+</style>`;
+    preview = `${previewCSS}<div class="ecj-img-placeholder">🗺 ${alt}</div><p style="font-size:0.8rem;color:#64748b;max-width:280px;">aria-describedby → <span class="sr-only" style="position:static;width:auto;height:auto;clip:auto;overflow:visible;white-space:normal;margin:0;">${longdesc}</span></p>`;
+  }
+
+  document.getElementById('preview-alt').innerHTML = preview;
+  document.getElementById('code-alt').value = html;
+  announce('Alt text gerado.');
+}
+
+// ===== GENERATOR: ACCESSIBLE LINK =====
+
+function updateLinkFields() {
+  const type = document.getElementById('lnk-type').value;
+  const showAriaLabel  = ['ambiguous','icon'].includes(type);
+  const showDownload   = type === 'download';
+  const showFiletype   = type === 'download';
+  document.getElementById('lnk-field-arialabel').style.display = showAriaLabel ? '' : 'none';
+  document.getElementById('lnk-field-download').style.display  = showDownload  ? '' : 'none';
+  document.getElementById('lnk-field-filetype').style.display  = showFiletype  ? '' : 'none';
+
+  // Update default aria-label
+  const ariaLabelInput = document.getElementById('lnk-arialabel');
+  if (type === 'ambiguous' && !ariaLabelInput.value) ariaLabelInput.value = 'Ver relatório anual de 2024 (PDF)';
+  if (type === 'icon'      && !ariaLabelInput.value) ariaLabelInput.value = 'Abrir menu de navegação';
+}
+
+function generateLink() {
+  const type       = document.getElementById('lnk-type').value;
+  const text       = (document.getElementById('lnk-text').value || 'Ver mais').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const href       = document.getElementById('lnk-href').value || '#';
+  const ariaLabel  = (document.getElementById('lnk-arialabel').value || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const filename   = document.getElementById('lnk-filename').value || 'arquivo.pdf';
+  const filetype   = (document.getElementById('lnk-filetype').value || 'PDF, 2 MB').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const includeCSS = document.getElementById('lnk-includeCSS').checked;
+
+  const css = includeCSS ? `\n\n<style>
+.ecj-link { color: #2563eb; text-decoration: underline; text-underline-offset: 3px; }
+.ecj-link:hover { color: #1d4ed8; }
+.ecj-link:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+</style>` : '';
+
+  let html = '', preview = '';
+  const previewCSS = `<style>
+  .ecj-link { color:#2563eb;text-decoration:underline;text-underline-offset:3px; }
+  .ecj-link:hover{color:#1d4ed8;}
+  .ecj-link:focus-visible{outline:3px solid #2563eb;outline-offset:2px;border-radius:2px;}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+  </style>`;
+
+  if (type === 'text') {
+    html = `<!-- Link com texto descritivo — funciona sem contexto -->
+<a href="${href}" class="ecj-link">${text}</a>${css}`;
+    preview = `${previewCSS}<p style="font-size:0.95rem;">Confira a documentação: <a class="ecj-link" href="#">${text}</a></p>`;
+
+  } else if (type === 'ambiguous') {
+    html = `<!-- Link ambíguo — usa aria-label para dar contexto ao leitor de tela -->
+<!-- ⚠ Prefira reescrever o texto visível. Use aria-label apenas quando não for possível. -->
+<a href="${href}" class="ecj-link" aria-label="${ariaLabel}">${text}</a>${css}`;
+    preview = `${previewCSS}<p style="font-size:0.95rem;"><a class="ecj-link" href="#" aria-label="${ariaLabel}">${text}</a></p><p style="font-size:0.78rem;color:#64748b;margin-top:0.5rem;">Leitor de tela anuncia: "${ariaLabel}"</p>`;
+
+  } else if (type === 'external') {
+    html = `<!-- Link externo: avisa o usuário que abre em nova aba -->
+<a href="${href}" class="ecj-link" target="_blank" rel="noopener noreferrer">
+  ${text} <span class="sr-only">(abre em nova aba)</span>
+  <span aria-hidden="true">↗</span>
+</a>${css}`;
+    preview = `${previewCSS}<a class="ecj-link" href="#">${text} <span class="sr-only">(abre em nova aba)</span><span aria-hidden="true">↗</span></a><p style="font-size:0.78rem;color:#64748b;margin-top:0.5rem;">↗ visível + "abre em nova aba" para leitores de tela</p>`;
+
+  } else if (type === 'download') {
+    html = `<!-- Link de download: informa tipo e tamanho no próprio texto -->
+<a href="${href}" class="ecj-link" download="${filename}">
+  ${text} <span class="sr-only">(${filetype})</span>
+  <span aria-hidden="true">⬇</span>
+</a>${css}`;
+    preview = `${previewCSS}<a class="ecj-link" href="#">${text} <span class="sr-only">(${filetype})</span><span aria-hidden="true">⬇</span></a><p style="font-size:0.78rem;color:#64748b;margin-top:0.5rem;">⬇ + tipo/tamanho visível para leitores de tela</p>`;
+
+  } else if (type === 'icon') {
+    html = `<!-- Link só com ícone: aria-label obrigatório -->
+<a href="${href}" class="ecj-link" aria-label="${ariaLabel}">
+  <span aria-hidden="true">☰</span>
+</a>${css}`;
+    preview = `${previewCSS}<a class="ecj-link" href="#" aria-label="${ariaLabel}" style="font-size:1.4rem;text-decoration:none;"><span aria-hidden="true">☰</span></a><p style="font-size:0.78rem;color:#64748b;margin-top:0.5rem;">Leitor de tela anuncia: "${ariaLabel}"</p>`;
+
+  } else if (type === 'email') {
+    const emailHref = href.startsWith('mailto:') ? href : 'mailto:' + href;
+    html = `<!-- Link de e-mail: informa que é um endereço de e-mail -->
+<a href="${emailHref}" class="ecj-link">
+  ${text} <span class="sr-only">(e-mail)</span>
+</a>${css}`;
+    preview = `${previewCSS}<a class="ecj-link" href="#">${text} <span class="sr-only">(e-mail)</span></a>`;
+  }
+
+  document.getElementById('preview-link').innerHTML = preview;
+  document.getElementById('code-link').value = html;
+  announce('Link acessível gerado.');
+}
+
+// ===== GENERATOR: SKIP LINK =====
+
+function generateSkipLink() {
+  const type       = document.getElementById('skp-type').value;
+  const includeCSS = document.getElementById('skp-includeCSS').checked;
+
+  // Show/hide fields
+  const showSkip = type === 'skiplink' || type === 'both';
+  const showLive = type === 'liveregion' || type === 'both';
+  document.getElementById('skp-fields-skiplink').style.display   = showSkip ? '' : 'none';
+  document.getElementById('skp-fields-liveregion').style.display = showLive ? '' : 'none';
+
+  const skipText   = (document.getElementById('skp-text').value || 'Pular para o conteúdo principal').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const targetId   = document.getElementById('skp-target').value || 'main-content';
+  const liveType   = document.getElementById('skp-live-type') ? document.getElementById('skp-live-type').value : 'polite';
+  const liveAtomic = document.getElementById('skp-live-atomic') ? document.getElementById('skp-live-atomic').value : 'true';
+  const liveId     = (document.getElementById('skp-live-id') ? document.getElementById('skp-live-id').value : 'live-region') || 'live-region';
+
+  const css = includeCSS ? `\n\n<style>
+/* Skip link — visível apenas no foco */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  background: #2563eb;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: 700;
+  z-index: 9999;
+  text-decoration: none;
+  transition: top 0.2s;
+}
+.skip-link:focus { top: 1rem; }
+/* Live region — oculta visualmente mas acessível */
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+</style>` : '';
+
+  let html = '';
+  const previewCSS = `<style>
+  .skip-link-demo{display:inline-block;background:#2563eb;color:#fff;padding:0.5rem 1rem;border-radius:4px;font-weight:700;text-decoration:none;font-size:0.875rem;}
+  .live-demo{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:0.75rem 1rem;font-size:0.82rem;color:#475569;margin-top:0.5rem;}
+  </style>`;
+
+  let preview = previewCSS;
+
+  if (type === 'skiplink' || type === 'both') {
+    html += `<!-- Skip Link: DEVE ser o primeiro elemento focável do <body> -->
+<a class="skip-link" href="#${targetId}">${skipText}</a>
+
+<!-- ... header, nav ... -->
+
+<!-- Elemento destino: tabindex="-1" é necessário para receber foco programático -->
+<main id="${targetId}" tabindex="-1">
+  <!-- conteúdo principal -->
+</main>`;
+    preview += `<p style="font-size:0.8rem;color:#64748b;margin-bottom:0.5rem;">Visível ao pressionar Tab pela primeira vez:</p>
+<a class="skip-link-demo" href="#">${skipText}</a>
+<p style="font-size:0.78rem;color:#94a3b8;margin-top:0.4rem;">Destino: #${targetId} (tabindex="-1")</p>`;
+  }
+
+  if (type === 'liveregion' || type === 'both') {
+    if (type === 'both') html += '\n\n';
+    html += `<!-- Live Region: atualize o conteúdo via JavaScript para anunciar mensagens -->
+<div
+  id="${liveId}"
+  aria-live="${liveType}"
+  aria-atomic="${liveAtomic}"
+  class="sr-only"
+></div>
+
+<!-- Exemplo de uso em JavaScript: -->
+<!-- document.getElementById('${liveId}').textContent = 'Formulário enviado com sucesso!'; -->`;
+    preview += `<div class="live-demo" style="margin-top:${type==='both'?'1rem':'0'};">
+  <strong>Live Region</strong> — <code>aria-live="${liveType}"</code> / <code>aria-atomic="${liveAtomic}"</code><br/>
+  <span style="color:#94a3b8;font-size:0.78rem;">id="${liveId}" — atualize via JS para anunciar ao leitor de tela</span>
+</div>`;
+  }
+
+  html += css;
+
+  document.getElementById('preview-skiplink').innerHTML = preview;
+  document.getElementById('code-skiplink').value = html;
+  announce('Skip Link gerado.');
+}
+
+// Init auto-generate for new panels when activated
+const _origActivate = activatePanel;
+activatePanel = function(panelId) {
+  _origActivate(panelId);
+  if (panelId === 'contrast')  generateContrast();
+  if (panelId === 'alttext')   { updateAltFields(); generateAlt(); }
+  if (panelId === 'link')      { updateLinkFields(); generateLink(); }
+  if (panelId === 'skiplink')  generateSkipLink();
+};
+
+// Update coming-soon list
+document.querySelectorAll('.nav-btn[data-panel]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const panel = btn.getAttribute('data-panel');
+    const comingSoon = ['modal','toast','accordion','tabs'];
+    if (comingSoon.includes(panel)) {
+      announce(i18n[currentLang]['coming-soon']);
+      return;
+    }
+    _origActivate(panel);
+    if (panel === 'contrast')  generateContrast();
+    if (panel === 'alttext')   { updateAltFields(); generateAlt(); }
+    if (panel === 'link')      { updateLinkFields(); generateLink(); }
+    if (panel === 'skiplink')  generateSkipLink();
+  });
 });
 
 </script>
