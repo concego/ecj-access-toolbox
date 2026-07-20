@@ -1,127 +1,162 @@
-# 🧰 ECJ Access Toolbox
+<div align="center">
 
-**Gerador de componentes HTML acessíveis — prontos para produção.**  
-*Accessible HTML component generator — production-ready.*
+<img src="https://img.shields.io/badge/ECJ-Access%20Toolbox-5b8dee?style=for-the-badge&labelColor=0f1117" alt="ECJ Access Toolbox" />
 
-[![GitHub Pages](https://img.shields.io/badge/Live-GitHub%20Pages-blue?logo=github)](https://concego.github.io/ecj-access-toolbox/)
-[![WCAG 2.2](https://img.shields.io/badge/WCAG-2.2%20AA-green)](https://www.w3.org/TR/WCAG22/)
-[![WAI-ARIA 1.2](https://img.shields.io/badge/WAI--ARIA-1.2-green)](https://www.w3.org/TR/wai-aria-1.2/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
+**Generate production-ready, WCAG-compliant HTML components. Zero dependencies. Zero guesswork.**
 
----
+[![Live Tool](https://img.shields.io/badge/🌐%20Live%20Tool-concego.github.io-5b8dee?style=flat-square)](https://concego.github.io/ecj-access-toolbox/)
+[![WCAG 2.2 AA](https://img.shields.io/badge/WCAG-2.2%20AA-22c55e?style=flat-square)](https://www.w3.org/TR/WCAG22/)
+[![WAI-ARIA 1.2](https://img.shields.io/badge/WAI--ARIA-1.2-22c55e?style=flat-square)](https://www.w3.org/TR/wai-aria-1.2/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-f59e0b?style=flat-square)](LICENSE)
+[![Single File](https://img.shields.io/badge/architecture-single%20file-a78bfa?style=flat-square)](index.html)
 
-## 🌐 Acesse / Access
+[**→ Open the tool**](https://concego.github.io/ecj-access-toolbox/) · [Report a bug](https://github.com/concego/ecj-access-toolbox/issues) · [Request a component](https://github.com/concego/ecj-access-toolbox/issues)
 
-**https://concego.github.io/ecj-access-toolbox/**
-
-Ferramenta 100% client-side. Sem backend, sem login, sem instalação.  
-100% client-side tool. No backend, no login, no installation.
+</div>
 
 ---
 
-## O que é / What is it
+## The problem
 
-O **ECJ Access Toolbox** nasceu de uma observação real: a maioria dos erros de acessibilidade reportados por usuários reais (comunidade r/Accessibility, auditorias do mundo real) é causada por desenvolvedores que **não sabem o que estão fazendo de errado**.
+Most accessibility errors in the wild aren't caused by developers who don't care — they're caused by developers who **don't know what they're doing wrong**.
 
-O objetivo não é ensinar teoria — é **entregar código pronto**, correto e explicado, para que o desenvolvedor copie, cole e aprenda na prática.
+A button with `disabled` instead of `aria-disabled`. A form with no `<legend>`. An input whose label is just a placeholder. A progress bar with no `role="progressbar"`. Small mistakes, real barriers.
 
-> Trabalho com acessibilidade digital desde 2004. Sou cego e uso NVDA e TalkBack diariamente.  
-> — Anderson Carvalho, [Eu Concego Jogar](https://site.zapia.com/0alwlra4)
+The ECJ Access Toolbox was built to eliminate these errors at the source: instead of teaching theory, it **hands you the correct code**, configured and ready to paste.
+
+> I've been working in digital accessibility since 2004. I'm blind and use NVDA and TalkBack every day. I built this tool because I got tired of auditing the same mistakes over and over.
+>
+> — Anderson Carvalho · [Eu Concego Jogar](https://site.zapia.com/0alwlra4)
 
 ---
 
-## ✨ Componentes disponíveis / Available Components
+## How it works
 
-### Fase 1 — Críticos / Phase 1 — Critical
+1. Open **[concego.github.io/ecj-access-toolbox](https://concego.github.io/ecj-access-toolbox/)**
+2. Pick a component from the sidebar
+3. Configure: label text, ARIA states, variants, error states
+4. See the live preview update in real time
+5. Copy the code or download the `.html` file
 
-| Componente | O que resolve / What it solves |
+No account. No install. No build step. The tool runs entirely in your browser.
+
+---
+
+## Components
+
+### Phase 1 — Critical (available now)
+
+| Component | What it fixes |
 |---|---|
-| **Button** | Estados completos (`aria-disabled`, `aria-busy`, `aria-pressed`, `aria-expanded`), foco visível, variantes primary/secondary/danger |
-| **Input Field** | Label real (não placeholder), `aria-invalid`, `aria-describedby`, autocomplete, estado de erro acessível |
-| **Form Group** | `<fieldset>` + `<legend>` corretos para checkbox/radio, `aria-required`, associação semântica real |
-| **Select / Combobox** | Label real, `aria-invalid`, placeholder acessível, estado de erro, hint text |
+| **Button** | `aria-disabled` (not `disabled`), `aria-busy` for loading states, `aria-pressed` for toggles, `aria-expanded` for disclosures — all variants with visible focus |
+| **Input Field** | Real `<label>` (never a placeholder substitute), `aria-invalid`, `aria-describedby` for hints and errors, autocomplete hints |
+| **Form Group** | Correct `<fieldset>` + `<legend>` for checkbox/radio groups, `aria-required` on the fieldset, proper semantic association |
+| **Select / Combobox** | Real `<label>`, `aria-invalid`, accessible placeholder option, error state, visible focus |
+| **Progress Bar** | `role="progressbar"` with `aria-valuenow/min/max`, `aria-live="polite"` for dynamic updates, `aria-busy` for indeterminate states, `aria-current="step"` for step indicators |
 
-### Fase 2 — Em breve / Phase 2 — Coming Soon
+### Phase 2 — Coming next
 
-- Modal / Dialog
-- Toast / Alert
-- Accordion
-- Tabs
-
----
-
-## 🔑 Princípios de design / Design Principles
-
-- **Semântica antes de ARIA** — usar o elemento HTML correto sempre que possível
-- **`aria-disabled` em vez de `disabled`** — mantém o elemento focável por leitores de tela
-- **`:focus-visible` por padrão** — foco visível incluído em todo componente gerado
-- **`.sr-only` incluído** — classe utilitária para conteúdo visível apenas para leitores de tela
-- **Framework-agnostic** — HTML/CSS puro, funciona em qualquer stack
+| Component | Key ARIA patterns |
+|---|---|
+| **Modal / Dialog** | `role="dialog"`, `aria-modal`, focus trap, `aria-labelledby`, return focus on close |
+| **Toast / Alert** | `role="alert"` vs `aria-live`, dismiss controls, timeout accessibility |
+| **Accordion** | `aria-expanded`, `aria-controls`, header/panel association |
+| **Tabs** | `role="tablist/tab/tabpanel"`, keyboard navigation, `aria-selected` |
 
 ---
 
-## 🛠 Como usar / How to use
+## Design principles
 
-1. Acesse **https://concego.github.io/ecj-access-toolbox/**
-2. Escolha o componente na barra lateral
-3. Configure as opções (variante, estados ARIA, textos)
-4. Veja o preview em tempo real
-5. Copie o código ou baixe o `.html`
+Every component generated by this tool follows these rules — no exceptions:
 
-A ferramenta é bilíngue — clique em **PT** ou **EN** no cabeçalho.
-
----
-
-## 💛 Contribuir / Support
-
-Se esta ferramenta ajudou seu projeto, considere apoiar:
-
-[![PayPal](https://img.shields.io/badge/Contribuir-PayPal-ffc439?logo=paypal&logoColor=003087)](https://www.paypal.com/donate/?business=aanderson.carvalho%40hotmail.com&currency_code=USD)
+- **Semantics before ARIA** — use the right HTML element first; ARIA only where HTML falls short
+- **`aria-disabled` over `disabled`** — keeps the element reachable by screen readers and keyboard users
+- **`:focus-visible` always included** — visible focus is not optional
+- **`aria-labelledby` / `aria-describedby` over `aria-label`** — visible text associations preferred
+- **`.sr-only` included** — screen-reader-only utility class shipped with every component
+- **Self-contained output** — generated code includes its own CSS; no framework or external stylesheet required
 
 ---
 
-## 📦 Estrutura / Structure
+## Generated code example
+
+```html
+<!-- Button — Primary (WCAG 2.2 + WAI-ARIA 1.2) -->
+<button
+  type="button"
+  class="ecj-btn ecj-btn--primary"
+  aria-label="Salvar alterações"
+>
+  Salvar
+</button>
+
+<style>
+  .ecj-btn { /* focus-visible, color contrast, padding... */ }
+  .ecj-btn:focus-visible { outline: 3px solid #2563eb; outline-offset: 2px; }
+  .ecj-btn[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+</style>
+```
+
+---
+
+## Architecture
 
 ```
 ecj-access-toolbox/
-└── index.html   # Ferramenta completa — single-file app
+└── index.html   # Complete tool — single-file app (~2,200 lines)
 ```
 
-Projeto intencionalmente mantido como arquivo único para máxima portabilidade.  
-Intentionally kept as a single file for maximum portability.
+Intentionally kept as a single file. No build process, no dependencies, no framework. Works offline, works on any server, works on GitHub Pages, works dropped into any project.
 
 ---
 
-## 📋 Roadmap
+## Roadmap
 
-### v1.0 (atual / current) — Free
-- [x] Button
-- [x] Input Field
-- [x] Form Group
-- [x] Select / Combobox
-- [x] Interface bilíngue PT/EN
-- [x] Preview em tempo real
-- [x] Download individual por componente
+```
+v1.0 ✅  Button · Input · Form Group · Select · Progress Bar
+         Bilingual UI (PT/EN) · Live preview · Per-component download
 
-### v2.0 (Ko-fi) — Planned
-- [ ] Modal / Dialog
-- [ ] Toast / Alert
-- [ ] Accordion
-- [ ] Tabs
-- [ ] Exportação React e Vue
+v1.1 🔜  Modal/Dialog · Toast · Accordion · Tabs
+
+v2.0 📋  React output · Vue output · Copy as JSX
+         Bulk export · Custom color tokens
+```
 
 ---
 
-## 🤝 Sobre / About
+## Contributing
 
-**Eu Concego Jogar (ECJ)** é um projeto de inclusão digital criado por Anderson Carvalho, especialista em acessibilidade com mais de 20 anos de experiência — usuário diário de NVDA e TalkBack.
+Found a bug? Open an [issue](https://github.com/concego/ecj-access-toolbox/issues).
 
-- 🌐 [Site / Portfolio](https://site.zapia.com/0alwlra4)
-- 📧 [euconcego@gmail.com](mailto:euconcego@gmail.com)
+Have a component suggestion? Open an issue with the tag `component-request` and include:
+- The HTML element / ARIA pattern
+- The common mistake it would fix
+- A real-world example of where you've seen it go wrong
+
+PRs are welcome. The only requirement: every change must be testable with NVDA + Firefox and TalkBack + Chrome.
 
 ---
 
-## 📄 Licença / License
+## Support
 
-MIT — livre para usar, modificar e distribuir com atribuição.  
-MIT — free to use, modify, and distribute with attribution.
+If this tool saved you time on an audit, a sprint, or a deadline:
+
+[![Support via PayPal](https://img.shields.io/badge/Support%20this%20project-PayPal-ffc439?style=flat-square&logo=paypal&logoColor=003087)](https://www.paypal.com/donate/?business=aanderson.carvalho%40hotmail.com&currency_code=USD)
+
+---
+
+## About
+
+**[Eu Concego Jogar (ECJ)](https://site.zapia.com/0alwlra4)** is a digital inclusion project by Anderson Carvalho — accessibility specialist, blind user of NVDA and TalkBack, developer, and content creator.
+
+"Concego" is a Brazilian Portuguese wordplay: *eu consigo* (I can) + *cego* (blind) + *jogar* (play/work).
+
+📧 [euconcego@gmail.com](mailto:euconcego@gmail.com)
+
+---
+
+<div align="center">
+
+Built with real-world pain. Tested with real screen readers. Made for everyone.
+
+</div>
