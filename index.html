@@ -464,6 +464,109 @@
     .paypal-btn:hover { background: #f0b429; transform: scale(1.03); }
     .paypal-btn:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
 
+    /* ===== PROGRESS BAR PREVIEW ===== */
+    .ecj-progress-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      font-family: inherit;
+    }
+    .ecj-progress-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+    .ecj-progress-track {
+      width: 100%;
+      height: 18px;
+      background: #e2e8f0;
+      border-radius: 99px;
+      overflow: hidden;
+      position: relative;
+    }
+    .ecj-progress-bar {
+      height: 100%;
+      background: #2563eb;
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+    .ecj-progress-bar.indeterminate {
+      width: 40%;
+      animation: ecj-indeterminate 1.4s ease-in-out infinite;
+    }
+    @keyframes ecj-indeterminate {
+      0%   { transform: translateX(-100%); }
+      100% { transform: translateX(350%); }
+    }
+    .ecj-progress-text {
+      font-size: 0.82rem;
+      color: #475569;
+      font-variant-numeric: tabular-nums;
+    }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+    /* Steps */
+    .ecj-steps {
+      display: flex;
+      gap: 0;
+      align-items: center;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .ecj-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      position: relative;
+      gap: 0.4rem;
+    }
+    .ecj-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      width: 100%;
+      height: 3px;
+      background: #e2e8f0;
+      z-index: 0;
+    }
+    .ecj-step.done:not(:last-child)::after { background: #2563eb; }
+    .ecj-step-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      z-index: 1;
+      border: 2px solid #e2e8f0;
+      background: #fff;
+      color: #94a3b8;
+    }
+    .ecj-step.done .ecj-step-circle  { background: #2563eb; border-color: #2563eb; color: #fff; }
+    .ecj-step.current .ecj-step-circle { background: #fff; border-color: #2563eb; color: #2563eb; outline: 3px solid #93c5fd; outline-offset: 2px; }
+    .ecj-step-name {
+      font-size: 0.72rem;
+      text-align: center;
+      color: #64748b;
+      max-width: 70px;
+    }
+    .ecj-step.current .ecj-step-name { color: #1e40af; font-weight: 600; }
+    .ecj-step.done .ecj-step-name { color: #1e40af; }
+
     /* ===== ARIA LIVE REGION ===== */
     #live-region {
       position: absolute;
@@ -531,6 +634,11 @@
       <span class="nav-tag hot">crítico</span>
     </button>
 
+    <button class="nav-btn" role="menuitem" data-panel="progress" aria-current="false">
+      <span class="nav-icon">📊</span>
+      Progress Bar
+      <span class="nav-tag hot">crítico</span>
+    </button>
     <p class="sidebar-label" id="nav-label-phase2">Fase 2 — Essenciais</p>
     <button class="nav-btn" role="menuitem" data-panel="modal" aria-current="false">
       <span class="nav-icon" aria-hidden="true">🗔</span>
@@ -585,6 +693,11 @@
             <p class="wc-icon" aria-hidden="true">📋</p>
             <p class="wc-name">Select</p>
             <p class="wc-desc" data-i18n="wc-sel-desc">Label real, aria-invalid</p>
+          </button>
+          <button class="welcome-card" data-panel="progress" onclick="activatePanel('progress')">
+            <p class="wc-icon" aria-hidden="true">📊</p>
+            <p class="wc-name">Progress Bar</p>
+            <p class="wc-desc" data-i18n="wc-prg-desc">Determinada, indeterminada, etapas</p>
           </button>
         </nav>
       </div>
@@ -935,6 +1048,108 @@
       </div>
     </div>
 
+    <!-- PANEL: PROGRESS BAR -->
+    <div class="panel" id="panel-progress" role="region" aria-label="Gerador de Progress Bar">
+      <div class="panel-header">
+        <h1 class="panel-title">📊 Progress Bar</h1>
+        <p class="panel-desc">Gera barras de progresso acessíveis com ARIA correto. Três variantes: determinada, indeterminada e indicador de etapas.</p>
+      </div>
+      <div class="panel-body">
+        <div class="config-pane" role="form" aria-label="Configurações da Progress Bar">
+
+          <div class="field-group">
+            <label class="field-label" for="prg-variant">Variante</label>
+            <select class="field-select" id="prg-variant" onchange="updateProgressFields()">
+              <option value="determinate" selected>Determinada (valor definido)</option>
+              <option value="indeterminate">Indeterminada (carregando...)</option>
+              <option value="steps">Indicador de Etapas</option>
+            </select>
+          </div>
+
+          <div id="prg-fields-determinate">
+            <div class="field-group">
+              <label class="field-label" for="prg-label">Label descritivo</label>
+              <input class="field-input" type="text" id="prg-label" value="Carregando arquivo" autocomplete="off" />
+              <p class="field-hint">Descreva O QUE está progredindo, não só "progresso"</p>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="prg-value">Valor atual (0–100)</label>
+              <input class="field-input" type="number" id="prg-value" value="65" min="0" max="100" />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="prg-show-text">Mostrar texto do percentual</label>
+              <select class="field-select" id="prg-show-text">
+                <option value="yes" selected>Sim — visível e para leitores de tela</option>
+                <option value="sr">Somente leitores de tela (.sr-only)</option>
+                <option value="no">Não</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="prg-live">aria-live para atualizações dinâmicas</label>
+              <select class="field-select" id="prg-live">
+                <option value="polite" selected>polite — anuncia sem interromper</option>
+                <option value="assertive">assertive — anuncia imediatamente</option>
+                <option value="off">off — sem anúncio automático</option>
+              </select>
+              <p class="field-hint">Use <strong>polite</strong> para uploads e downloads. <strong>assertive</strong> só para erros críticos.</p>
+            </div>
+          </div>
+
+          <div id="prg-fields-indeterminate" style="display:none">
+            <div class="field-group">
+              <label class="field-label" for="prg-ind-label">Label do estado de carregamento</label>
+              <input class="field-input" type="text" id="prg-ind-label" value="Carregando, aguarde..." autocomplete="off" />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="prg-ind-done-label">Label quando concluir</label>
+              <input class="field-input" type="text" id="prg-ind-done-label" value="Carregamento concluído." autocomplete="off" />
+              <p class="field-hint">Anunciado via aria-live quando aria-busy mudar para false</p>
+            </div>
+          </div>
+
+          <div id="prg-fields-steps" style="display:none">
+            <div class="field-group">
+              <label class="field-label" for="prg-steps-total">Total de etapas</label>
+              <input class="field-input" type="number" id="prg-steps-total" value="4" min="2" max="8" onchange="generateProgress()" />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="prg-steps-current">Etapa atual</label>
+              <input class="field-input" type="number" id="prg-steps-current" value="2" min="1" max="8" onchange="generateProgress()" />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="prg-steps-labels">Labels das etapas (separados por vírgula)</label>
+              <input class="field-input" type="text" id="prg-steps-labels" value="Dados pessoais,Endereço,Pagamento,Confirmação" autocomplete="off" />
+              <p class="field-hint">Deve ter o mesmo número de itens que o total de etapas</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="preview-pane">
+          <div class="tabs" role="tablist" aria-label="Visualização do Progress Bar">
+            <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-preview-prg" id="tab-preview-prg-btn" data-target="tab-preview-prg">Preview</button>
+            <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-code-prg" id="tab-code-prg-btn" data-target="tab-code-prg">Código HTML</button>
+          </div>
+          <div class="tab-content">
+            <div class="tabpanel active" id="tab-preview-prg" role="tabpanel" aria-labelledby="tab-preview-prg-btn">
+              <div class="preview-frame" id="preview-prg"></div>
+            </div>
+            <div class="tabpanel" id="tab-code-prg" role="tabpanel" aria-labelledby="tab-code-prg-btn">
+              <div class="code-block-wrapper">
+                <button class="copy-btn" onclick="copyCode('code-prg')" aria-label="Copiar código HTML do Progress Bar">Copiar</button>
+                <pre class="code-block"><code id="code-prg"></code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="generate-bar">
+        <button class="btn-generate" onclick="generateProgress()" aria-label="Gerar código do Progress Bar">Gerar</button>
+        <button class="btn-download" onclick="downloadCode('code-prg', 'ecj-progress.html')" aria-label="Baixar código HTML do Progress Bar">⬇ Baixar .html</button>
+        <span class="generate-hint" aria-live="polite">HTML puro — sem dependências</span>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -974,12 +1189,14 @@ function activatePanel(panelId) {
   if (panelId === 'input') generateInput();
   if (panelId === 'formgroup') generateFormGroup();
   if (panelId === 'select') generateSelect();
+  if (panelId === 'progress') generateProgress();
 }
 
 document.querySelectorAll('.nav-btn[data-panel]').forEach(btn => {
   btn.addEventListener('click', () => {
     const panel = btn.getAttribute('data-panel');
     const comingSoon = ['modal','toast','accordion','tabs'];
+    // progress is now live — remove from coming-soon if ever listed
     if (comingSoon.includes(panel)) {
       announce(i18n[currentLang]['coming-soon']);
       return;
@@ -1007,6 +1224,7 @@ const i18n = {
     'wc-inp-desc'     : 'Label real, aria-invalid',
     'wc-fg-desc'      : 'Fieldset, legend, ARIA',
     'wc-sel-desc'     : 'Label real, aria-invalid',
+    'wc-prg-desc'     : 'Determinada, indeterminada, etapas',
     'footer-spec'     : 'Componentes baseados em WCAG 2.2 + WAI-ARIA 1.2',
     'copy-btn'        : 'Copiar',
     'copied'          : 'Copiado!',
@@ -1035,6 +1253,7 @@ const i18n = {
     'wc-inp-desc'     : 'Real label, aria-invalid',
     'wc-fg-desc'      : 'Fieldset, legend, ARIA',
     'wc-sel-desc'     : 'Real label, aria-invalid',
+    'wc-prg-desc'     : 'Determinate, indeterminate, steps',
     'footer-spec'     : 'Components based on WCAG 2.2 + WAI-ARIA 1.2',
     'copy-btn'        : 'Copy',
     'copied'          : 'Copied!',
@@ -1725,6 +1944,208 @@ ${optItems}
   const el = document.getElementById(id);
   if (el) el.addEventListener('change', () => {});
 });
+
+// ===== PROGRESS BAR =====
+function updateProgressFields() {
+  const v = document.getElementById('prg-variant').value;
+  document.getElementById('prg-fields-determinate').style.display  = v === 'determinate'  ? '' : 'none';
+  document.getElementById('prg-fields-indeterminate').style.display = v === 'indeterminate' ? '' : 'none';
+  document.getElementById('prg-fields-steps').style.display         = v === 'steps'         ? '' : 'none';
+  generateProgress();
+}
+
+function generateProgress() {
+  const variant = document.getElementById('prg-variant').value;
+  let html = '', preview = '';
+
+  if (variant === 'determinate') {
+    const label    = (document.getElementById('prg-label').value || 'Carregando arquivo').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const value    = Math.min(100, Math.max(0, parseInt(document.getElementById('prg-value').value) || 0));
+    const showText = document.getElementById('prg-show-text').value;
+    const live     = document.getElementById('prg-live').value;
+    const labelId  = 'prg-label-' + Math.random().toString(36).slice(2,7);
+    const descId   = 'prg-desc-'  + Math.random().toString(36).slice(2,7);
+
+    let textHtml = '';
+    if (showText === 'yes') {
+      textHtml = `\n  <p class="ecj-progress-text" id="${descId}" aria-hidden="true">${value}%</p>`;
+    } else if (showText === 'sr') {
+      textHtml = `\n  <p class="sr-only" id="${descId}">${value}%</p>`;
+    }
+
+    const describedBy = showText !== 'no' ? ` aria-describedby="${descId}"` : '';
+
+    html = `<!-- Progress Bar — Determinada (WCAG 2.2 + WAI-ARIA 1.2) -->
+<div class="ecj-progress-wrap"${live !== 'off' ? ` aria-live="${live}" aria-atomic="false"` : ''}>
+  <span class="ecj-progress-label" id="${labelId}">${label}</span>
+  <div
+    class="ecj-progress-track"
+    role="progressbar"
+    aria-labelledby="${labelId}"${describedBy}
+    aria-valuenow="${value}"
+    aria-valuemin="0"
+    aria-valuemax="100"
+  >
+    <div class="ecj-progress-bar" style="width:${value}%"></div>
+  </div>${textHtml}
+</div>
+
+<style>
+.ecj-progress-wrap  { display:flex; flex-direction:column; gap:.4rem; }
+.ecj-progress-label { font-size:.9rem; font-weight:600; }
+.ecj-progress-track { width:100%; height:18px; background:#e2e8f0; border-radius:99px; overflow:hidden; }
+.ecj-progress-bar   { height:100%; background:#2563eb; border-radius:99px; transition:width .4s ease; }
+.ecj-progress-text  { font-size:.82rem; color:#475569; }
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+</style>`;
+
+    // preview
+    const trackStyle = `width:100%;height:18px;background:#e2e8f0;border-radius:99px;overflow:hidden;`;
+    const barStyle   = `height:100%;background:#2563eb;border-radius:99px;width:${value}%;`;
+    let textPreview = '';
+    if (showText === 'yes') textPreview = `<p style="font-size:.82rem;color:#475569;margin:0">${value}%</p>`;
+    else if (showText === 'sr') textPreview = `<p style="font-size:.75rem;color:#94a3b8;margin:0">(texto só para leitores de tela: ${value}%)</p>`;
+    preview = `<div style="display:flex;flex-direction:column;gap:.4rem;padding:1rem;background:#f8fafc;border-radius:8px;max-width:420px">
+  <span style="font-size:.9rem;font-weight:600">${label}</span>
+  <div style="${trackStyle}"><div style="${barStyle}"></div></div>
+  ${textPreview}
+  <p style="font-size:.75rem;color:#94a3b8;margin:0">aria-valuenow="${value}" aria-live="${live}"</p>
+</div>`;
+
+  } else if (variant === 'indeterminate') {
+    const label     = (document.getElementById('prg-ind-label').value || 'Carregando, aguarde...').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const doneLabel = (document.getElementById('prg-ind-done-label').value || 'Carregamento concluído.').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const wrapperId = 'prg-wrap-' + Math.random().toString(36).slice(2,7);
+
+    html = `<!-- Progress Bar — Indeterminada (WCAG 2.2 + WAI-ARIA 1.2) -->
+<!--
+  Uso:
+  • Quando iniciar: definir aria-busy="true" no wrapper e aria-label com a msg de carregamento
+  • Quando concluir: aria-busy="false" e aria-label com a msg de conclusão
+  • O aria-live="polite" no wrapper garante o anúncio ao leitor de tela
+-->
+<div
+  id="${wrapperId}"
+  class="ecj-progress-wrap"
+  aria-busy="true"
+  aria-live="polite"
+  aria-label="${label}"
+>
+  <div class="ecj-progress-track">
+    <div class="ecj-progress-bar indeterminate"></div>
+  </div>
+</div>
+
+<!-- Exemplo de conclusão via JS: -->
+<script>
+function finishLoading() {
+  const wrap = document.getElementById('${wrapperId}');
+  wrap.setAttribute('aria-busy', 'false');
+  wrap.setAttribute('aria-label', '${doneLabel}');
+  wrap.querySelector('.ecj-progress-bar').classList.remove('indeterminate');
+  wrap.querySelector('.ecj-progress-bar').style.width = '100%';
+}
+<\/script>
+
+<style>
+.ecj-progress-wrap  { display:flex; flex-direction:column; gap:.4rem; }
+.ecj-progress-track { width:100%; height:18px; background:#e2e8f0; border-radius:99px; overflow:hidden; position:relative; }
+.ecj-progress-bar   { height:100%; background:#2563eb; border-radius:99px; }
+.ecj-progress-bar.indeterminate { width:40%; animation: ecj-ind 1.4s ease-in-out infinite; }
+@keyframes ecj-ind {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+</style>`;
+
+    preview = `<div style="display:flex;flex-direction:column;gap:.6rem;padding:1rem;background:#f8fafc;border-radius:8px;max-width:420px">
+  <span style="font-size:.9rem;font-weight:600">${label}</span>
+  <div style="width:100%;height:18px;background:#e2e8f0;border-radius:99px;overflow:hidden;position:relative">
+    <div class="ecj-progress-bar indeterminate"></div>
+  </div>
+  <p style="font-size:.75rem;color:#94a3b8;margin:0">aria-busy="true" • aria-live="polite"</p>
+  <p style="font-size:.75rem;color:#64748b;margin:0">Ao concluir → aria-busy="false" + aria-label="${doneLabel}"</p>
+</div>`;
+
+  } else if (variant === 'steps') {
+    const total   = Math.min(8, Math.max(2, parseInt(document.getElementById('prg-steps-total').value) || 4));
+    const current = Math.min(total, Math.max(1, parseInt(document.getElementById('prg-steps-current').value) || 1));
+    const rawLabels = document.getElementById('prg-steps-labels').value.split(',').map(s => s.trim());
+    const labels = [];
+    for (let i = 0; i < total; i++) labels.push(rawLabels[i] || `Etapa ${i+1}`);
+
+    let stepsHtml = '', stepsPreview = '';
+    for (let i = 0; i < total; i++) {
+      const n = i + 1;
+      const isDone    = n < current;
+      const isCurrent = n === current;
+      const cls = isDone ? 'ecj-step done' : isCurrent ? 'ecj-step current' : 'ecj-step';
+      const ariaCurrent = isCurrent ? ' aria-current="step"' : '';
+      const label = labels[i].replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const srStatus = isDone ? ' (concluída)' : isCurrent ? ' (atual)' : ' (pendente)';
+      stepsHtml += `  <li class="${cls}"${ariaCurrent}>
+    <div class="ecj-step-circle" aria-hidden="true">${isDone ? '✓' : n}</div>
+    <span class="ecj-step-name">${label}<span class="sr-only">${srStatus}</span></span>
+  </li>\n`;
+
+      // preview visual
+      const bg    = isDone ? '#2563eb' : isCurrent ? '#fff' : '#fff';
+      const bc    = isDone ? '#2563eb' : isCurrent ? '#2563eb' : '#e2e8f0';
+      const color = isDone ? '#fff'    : isCurrent ? '#2563eb' : '#94a3b8';
+      const outline = isCurrent ? 'outline:3px solid #93c5fd;outline-offset:2px;' : '';
+      const nameColor = isDone || isCurrent ? '#1e40af' : '#64748b';
+      const nameFw    = isCurrent ? '600' : '400';
+      stepsPreview += `<li style="display:flex;flex-direction:column;align-items:center;flex:1;gap:.4rem;position:relative">
+    <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;z-index:1;border:2px solid ${bc};background:${bg};color:${color};${outline}">${isDone ? '✓' : n}</div>
+    <span style="font-size:.72rem;text-align:center;color:${nameColor};font-weight:${nameFw};max-width:70px">${label}</span>
+  </li>`;
+    }
+
+    html = `<!-- Indicador de Etapas (Step Progress) — WCAG 2.2 + WAI-ARIA 1.2 -->
+<nav aria-label="Progresso do formulário — Etapa ${current} de ${total}">
+  <ol class="ecj-steps">
+${stepsHtml}  </ol>
+</nav>
+
+<style>
+.ecj-steps { display:flex; gap:0; align-items:center; list-style:none; padding:0; margin:0; }
+.ecj-step  { display:flex; flex-direction:column; align-items:center; flex:1; position:relative; gap:.4rem; }
+.ecj-step:not(:last-child)::after { content:''; position:absolute; top:16px; left:50%; width:100%; height:3px; background:#e2e8f0; z-index:0; }
+.ecj-step.done:not(:last-child)::after { background:#2563eb; }
+.ecj-step-circle { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.8rem; font-weight:700; z-index:1; border:2px solid #e2e8f0; background:#fff; color:#94a3b8; }
+.ecj-step.done    .ecj-step-circle { background:#2563eb; border-color:#2563eb; color:#fff; }
+.ecj-step.current .ecj-step-circle { background:#fff; border-color:#2563eb; color:#2563eb; outline:3px solid #93c5fd; outline-offset:2px; }
+.ecj-step-name { font-size:.72rem; text-align:center; color:#64748b; max-width:70px; }
+.ecj-step.current .ecj-step-name { color:#1e40af; font-weight:600; }
+.ecj-step.done    .ecj-step-name { color:#1e40af; }
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+</style>`;
+
+    stepsPreview = `<ul style="display:flex;gap:0;align-items:center;list-style:none;padding:0;margin:0">${stepsPreview}</ul>`;
+    preview = `<div style="padding:1.5rem;background:#f8fafc;border-radius:8px;max-width:520px">
+  ${stepsPreview}
+  <p style="font-size:.75rem;color:#94a3b8;margin:.8rem 0 0">aria-current="step" na etapa ${current} • sr-only para status de cada etapa</p>
+</div>`;
+  }
+
+  // Render
+  const previewEl = document.getElementById('preview-prg');
+  const codeEl    = document.getElementById('code-prg');
+  if (previewEl) previewEl.innerHTML = preview;
+  if (codeEl)    codeEl.textContent  = html;
+  announce('Progress Bar gerado.');
+}
+
+// Listeners Progress Bar
+['prg-label','prg-value','prg-ind-label','prg-ind-done-label','prg-steps-labels'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', generateProgress);
+});
+['prg-show-text','prg-live','prg-steps-total','prg-steps-current'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', generateProgress);
+});
+
 </script>
 </body>
 </html>
