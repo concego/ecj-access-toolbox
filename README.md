@@ -62,19 +62,19 @@ Every component is validated against NVDA + Firefox and TalkBack + Chrome — no
 
 ### Available now — 9 components
 
-All based on [WebAIM Million 2026](https://webaim.org/projects/million/) failure rates and real-world audit data.
+All components are prioritized by the [WebAIM Million 2026](https://webaim.org/projects/million/) — the annual audit of one million real websites.
 
-| Component | Failure rate | What gets generated |
-|---|---|---|
-| 🎨 **Color Contrast** | **83.9%** of sites | Real-time WCAG ratio calculator with color pickers. Checks AA (4.5:1 normal / 3:1 large) and AAA (7:1 / 4.5:1). Outputs ready-to-use CSS with verified contrast values. |
-| 🖼️ **Image Alt Text** | **53.1%** of images | Five patterns: informative (`alt="description"`), decorative (`alt=""` + `role="presentation"`), functional (linked image), `<figure>` + `<figcaption>`, and complex image with `aria-describedby`. |
-| ✏️ **Input Field** | **51%** of inputs | Input with a real `<label>` (never a placeholder), `aria-required`, `aria-invalid`, `aria-describedby` linking the field to a visible hint and a visible error message. |
-| 🔗 **Accessible Link** | **46.3%** of links | Six types: descriptive text, ambiguous text with `aria-label`, external link (new tab + sr-only warning), download link, icon-only link with `aria-label`, and mailto. |
-| ☑️ **Form Group** | ~40% of sites | Checkbox or radio group with `<fieldset>` + `<legend>`, `aria-required` on the group, and proper semantic association between inputs and their labels. |
-| 🔘 **Button** | ~30.6% of sites | All variants (primary, secondary, danger, ghost) with `aria-disabled` (not `disabled`), `aria-busy` for loading, `aria-pressed` for toggles, `aria-expanded` for disclosures. Visible `:focus-visible` always included. |
-| 📋 **Select / Combobox** | ~30% of sites | Native `<select>` with real `<label>`, accessible placeholder option, `aria-invalid`, visible error message linked via `aria-describedby`, and visible focus state. |
-| 📊 **Progress Bar** | common | Three modes: determinate (`role="progressbar"` + `aria-valuenow/min/max`), indeterminate (`aria-busy="true"`), and step indicator (`aria-current="step"`). All include `aria-live="polite"` for dynamic updates. |
-| ⏭️ **Skip Link + Live Region** | ~12% of sites | Skip link that appears on focus (keyboard users and screen readers), `aria-live` regions (polite and assertive), and `aria-atomic` — the two most forgotten patterns in every audit. |
+| Component | What gets generated |
+|---|---|
+| 🎨 **Color Contrast** — **83.9% of sites fail** | Real-time WCAG ratio calculator with color pickers. Checks AA (4.5:1 normal / 3:1 large) and AAA (7:1 / 4.5:1). Outputs ready-to-use CSS with verified contrast values. |
+| 🖼️ **Image Alt Text** — **53.1% of images fail** | Five patterns: informative (`alt="description"`), decorative (`alt=""` + `role="presentation"`), functional (linked image), `<figure>` + `<figcaption>`, and complex image with `aria-describedby`. |
+| ✏️ **Input Field** | Input with a real `<label>` (never a placeholder), `aria-required`, `aria-invalid`, `aria-describedby` linking the field to a visible hint and a visible error message. |
+| 🔗 **Accessible Link** | Six types: descriptive text, ambiguous text with `aria-label`, external link (new tab + sr-only warning), download link, icon-only link with `aria-label`, and mailto. |
+| ☑️ **Form Group** | Checkbox or radio group with `<fieldset>` + `<legend>`, `aria-required` on the group, and proper semantic association between inputs and their labels. |
+| 🔘 **Button** | All variants (primary, secondary, danger, ghost) with `aria-disabled` (not `disabled`), `aria-busy` for loading, `aria-pressed` for toggles, `aria-expanded` for disclosures. Visible `:focus-visible` always included. |
+| 📋 **Select / Combobox** | Native `<select>` with real `<label>`, accessible placeholder option, `aria-invalid`, visible error message linked via `aria-describedby`, and visible focus state. |
+| 📊 **Progress Bar** | Three modes: determinate (`role="progressbar"` + `aria-valuenow/min/max`), indeterminate (`aria-busy="true"`), and step indicator (`aria-current="step"`). All include `aria-live="polite"` for dynamic updates. |
+| ⏭️ **Skip Link + Live Region** | Skip link that appears on focus (keyboard users and screen readers), `aria-live` regions (polite and assertive), and `aria-atomic` — the two most forgotten patterns in every audit. |
 
 ### Coming next — Phase 2
 
